@@ -67,8 +67,8 @@ longhorn:
   # You can add Omni annotations to the UI service if needed
   serviceAnnotations:
     # Uncomment to enable Omni Workload Proxying
-    # omni-kube-service-exposer.sidero.dev/port: "80"
-    # omni-kube-service-exposer.sidero.dev/label: Longhorn
+    omni-kube-service-exposer.sidero.dev/port: "80"
+    omni-kube-service-exposer.sidero.dev/label: Longhorn
 
   # Resource limits
   resources:
