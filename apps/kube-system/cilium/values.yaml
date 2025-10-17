@@ -24,6 +24,9 @@ cilium:
     hostRoot: /sys/fs/cgroup
     autoMount:
       enabled: false
+  # Enable Gateway API support
+  gatewayAPI:
+    enabled: true
   # Enable Cilium Ingress Controller
   ingressController:
     enabled: true
