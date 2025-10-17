@@ -32,7 +32,7 @@ kube-prometheus-stack:
               - ReadWriteOnce
             resources:
               requests:
-                storage: 150Gi
+                storage: 15Gi
   grafana:
     grafana.ini:
       auth:
