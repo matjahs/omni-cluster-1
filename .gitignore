@@ -65,3 +65,4 @@ vars*.json
 patch*.yaml
 
 .env
+.claude/settings.local.json
