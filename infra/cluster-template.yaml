@@ -33,6 +33,8 @@ patches:
     file: patches/scheduling.yaml
   - name: cilium
     file: patches/cilium.yaml
+  - name: pod-security
+    file: patches/pod-security.yaml
   - name: argocd
     file: patches/argocd.yaml
   - name: user-volume
