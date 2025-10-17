@@ -1,0 +1,22 @@
+vault:
+  global:
+    tlsDisable: true
+  injector:
+    enabled: false
+  csi:
+    enabled: false
+  server:
+    ha:
+      enabled: false
+    standalone:
+      enabled: true
+    dataStorage:
+      enabled: true
+      size: 10Gi
+    service:
+      type: ClusterIP
+      port: 8200
+    extraEnvironmentVars:
+      VAULT_API_ADDR: http://vault.vault.svc.cluster.local:8200
+  ui:
+    enabled: true
