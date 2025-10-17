@@ -63,3 +63,5 @@ talosconfig
 kubeconfig
 vars*.json
 patch*.yaml
+
+.env
