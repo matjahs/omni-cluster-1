@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(helm dependency build:*)"
+      "Bash(helm dependency build:*)",
+      "Bash(kubectl kustomize:*)"
     ],
     "deny": [],
     "ask": []
