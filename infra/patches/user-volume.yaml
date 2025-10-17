@@ -1,0 +1,16 @@
+# Talos machine config patch to configure storage for Longhorn
+# This patch configures kubelet to properly expose directories for Longhorn
+# It does NOT modify disk partitions to avoid interfering with the system disk
+
+machine:
+  kubelet:
+    extraMounts:
+      # Mount /var/lib/longhorn with proper permissions for Longhorn
+      # This directory will be on the STATE partition which is read-write
+      - destination: /var/lib/longhorn
+        type: bind
+        source: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw

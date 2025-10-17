@@ -35,6 +35,8 @@ patches:
     file: patches/cilium.yaml
   - name: argocd
     file: patches/argocd.yaml
+  - name: user-volume
+    file: patches/user-volume.yaml
   - name: longhorn
     file: patches/longhorn.yaml
   - name: monitoring
