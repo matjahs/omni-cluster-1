@@ -66,4 +66,8 @@ patch*.yaml
 
 .env
 .claude/settings.local.json
+
+# Helm chart dependencies
+**/charts/
+**/Chart.lock
 .claude/settings.local.json
