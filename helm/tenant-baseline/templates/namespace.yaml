@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ required "tenantName is required" .Values.tenantName }}
+  labels:
+    tenant: {{ .Values.tenantName | quote }}
+    {{- if .Values.labels.enabled }}
+    {{- range $k, $v := .Values.labels.extra }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}

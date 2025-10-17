@@ -1,0 +1,9 @@
+tenantName: team-a
+rbac:
+  adminGroups:
+    - oidc:github:org:platform-admins
+    - oidc:github:org:team-a-admins
+resourceQuota:
+  hard:
+    requests.cpu: "4"
+    limits.memory: 16Gi

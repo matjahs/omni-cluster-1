@@ -16,6 +16,10 @@ vault:
     service:
       type: ClusterIP
       port: 8200
+      annotations:
+        omni-kube-service-exposer.sidero.dev/label: Vault
+        omni-kube-service-exposer.sidero.dev/prefix: vault
+        omni-kube-service-exposer.sidero.dev/port: "8200"
     extraEnvironmentVars:
       VAULT_API_ADDR: http://vault.vault.svc.cluster.local:8200
   ui:

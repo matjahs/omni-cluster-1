@@ -1,0 +1,44 @@
+tenantName: ""   # REQUIRED per-tenant via values file
+labels:
+  enabled: true
+  extra: {}
+
+rbac:
+  enabled: true
+  adminGroups: ["tenant-admins"]   # override per tenant
+  additionalRoleBindings: []        # [{name, kind, subjectName, roleName}]
+
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+    pods: "25"
+    services: "10"
+
+limitRange:
+  enabled: true
+  default:
+    cpu: "500m"
+    memory: "512Mi"
+  defaultRequest:
+    cpu: "200m"
+    memory: "256Mi"
+
+networkPolicy:
+  defaultDenyAll: true
+  allowSameNamespace: true
+  extra: [] # raw manifests or additional rules via tpl
+
+podSecurity:
+  enabled: true
+  level: baseline   # {restricted|baseline|privileged}
+
+serviceAccount:
+  enabled: false
+  name: default
+
+extras:
+  config: {}

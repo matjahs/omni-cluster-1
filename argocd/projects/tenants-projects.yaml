@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenants
+  namespace: argocd
+spec:
+  description: >-
+    Governance boundary for multi-tenant workloads and cluster add-ons.
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: 'team-*'
+      server: https://kubernetes.default.svc
+    - namespace: 'cert-manager'
+      server: https://kubernetes.default.svc
+    - namespace: 'vault'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  orphanedResources:
+    warn: true
