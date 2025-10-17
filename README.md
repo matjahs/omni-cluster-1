@@ -34,6 +34,48 @@ This setup makes use of the [Omni Workload Proxy](https://omni.siderolabs.com/ho
 which allows access to the HTTP front end services *without* the need of a separate external Ingress Controller or LoadBalancer.
 Additionally, it leverages Omni's built-in authentication to protect the services, even those services that don't support authentication themselves.
 
+## Storage Configuration
+
+This cluster uses Longhorn for persistent storage.
+
+### ⚠️ IMPORTANT: Default Configuration (System Disk)
+
+The current configuration uses `/var/lib/longhorn` on the **STATE partition** of the system disk. This is configured via kubelet extraMounts in [user-volume.yaml](infra/patches/user-volume.yaml).
+
+**This configuration:**
+- ✅ Works immediately without additional setup
+- ✅ Safe - does NOT modify disk partitions
+- ✅ Suitable for development and testing
+- ⚠️ Shares space with system state (logs, kubelet data, etc.)
+
+### Using Additional Disks (Advanced)
+
+**WARNING**: Modifying Talos disk configurations can break your cluster if done incorrectly. The system disk should NEVER be reconfigured via machine patches.
+
+If you want to use dedicated disks for Longhorn:
+1. **Do NOT** use machine config patches to mount disks
+2. **Instead**, manually mount disks after cluster deployment:
+   ```bash
+   # Example: Mount additional disk
+   mount /dev/sdb1 /var/mnt/longhorn-disk1
+   ```
+3. Then configure Longhorn via the UI to use those paths
+
+### Checking Available Space
+
+To check available space for Longhorn:
+```bash
+# From a Talos node console (via Omni)
+df -h | grep STATE
+```
+
+The STATE partition is typically on `/dev/sda3` and has sufficient space for most workloads.
+
+### Required System Extensions
+The cluster template includes the necessary Talos system extensions for Longhorn:
+- `siderolabs/iscsi-tools` - iSCSI support for Longhorn
+- `siderolabs/util-linux-tools` - Disk utilities
+
 ## Applications
 
 Applications are managed by ArgoCD, and are defined in the `apps` directory.
