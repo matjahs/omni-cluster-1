@@ -25,6 +25,8 @@ machineClass:
   name: k8s-rumc-01-nodes
   size: 3
 patches:
+  - name: scheduling
+    file: patches/scheduling.yaml
   - name: cilium
     file: patches/cilium.yaml
   - name: argocd
