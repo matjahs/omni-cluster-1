@@ -33,19 +33,39 @@ Omni will then being to allocate your machines, install Talos, and configure and
 
 ### Deployment Order
 
-Applications are deployed in the following order using ArgoCD sync waves:
+This cluster uses a **hybrid bootstrap pattern** for critical infrastructure:
 
-1. **Wave 0** (Infrastructure):
-   - Cilium (via inline manifest)
-   - ArgoCD (via inline manifest, bootstraps itself)
-   - Longhorn (storage - managed by ArgoCD)
-   - Namespace creation
+#### Bootstrap Phase (Inline Manifests)
+The following components are deployed immediately via Omni cluster patches:
+- **Cilium CNI** - Required for any pod networking
+- **ArgoCD** - Bootstraps itself and manages other applications
 
-2. **Wave 1** (Applications):
-   - Prometheus & Grafana (requires Longhorn for persistent storage)
-   - Other applications
+These are deployed as inline manifests to ensure they're available before any other workloads.
 
-This ensures that Longhorn persistent storage is available before the monitoring stack attempts to create PersistentVolumeClaims.
+#### ArgoCD Management Phase (Sync Waves)
+After bootstrap, ArgoCD takes over management and deploys applications in waves:
+
+**Wave -1** (Infrastructure Handover):
+- **Cilium** - ArgoCD takes over management from inline manifest
+  - Uses `ServerSideApply` to adopt existing resources
+  - `ignoreDifferences` for dynamically generated certs and runtime fields
+
+**Wave 0** (Storage):
+- **Longhorn** - Persistent storage must be ready first
+- **Namespace creation**
+
+**Wave 1** (Applications):
+- **Prometheus & Grafana** - Requires Longhorn for persistent storage
+- **Other applications**
+
+#### How Cilium Handover Works
+
+1. **Cluster Creation**: Cilium deployed via inline manifest (immediate CNI)
+2. **ArgoCD Starts**: Discovers `apps/kube-system/cilium` in git
+3. **Resource Adoption**: ArgoCD adopts existing Cilium resources using Server-Side Apply
+4. **Ongoing Management**: Future updates via git are applied by ArgoCD
+
+This ensures zero downtime - Cilium is never removed, just managed by ArgoCD after bootstrap.
 
 ### Omni Features
 
