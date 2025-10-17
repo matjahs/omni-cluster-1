@@ -25,10 +25,29 @@ See the [How-to](https://omni.siderolabs.com/how-to-guides/install-and-configure
 Once the required machines are registered to Omni and machine classes have been configured, simply run
 
 ```bash
+cd infra
 omnictl cluster template sync --file cluster-template.yaml
 ```
 
 Omni will then being to allocate your machines, install Talos, and configure and bootstrap the cluster.
+
+### Deployment Order
+
+Applications are deployed in the following order using ArgoCD sync waves:
+
+1. **Wave 0** (Infrastructure):
+   - Cilium (via inline manifest)
+   - ArgoCD (via inline manifest, bootstraps itself)
+   - Longhorn (storage - managed by ArgoCD)
+   - Namespace creation
+
+2. **Wave 1** (Applications):
+   - Prometheus & Grafana (requires Longhorn for persistent storage)
+   - Other applications
+
+This ensures that Longhorn persistent storage is available before the monitoring stack attempts to create PersistentVolumeClaims.
+
+### Omni Features
 
 This setup makes use of the [Omni Workload Proxy](https://omni.siderolabs.com/how-to-guides/expose-an-http-service-from-a-cluster) feature,
 which allows access to the HTTP front end services *without* the need of a separate external Ingress Controller or LoadBalancer.

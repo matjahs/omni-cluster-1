@@ -37,10 +37,10 @@ patches:
     file: patches/argocd.yaml
   - name: user-volume
     file: patches/user-volume.yaml
-  - name: longhorn
-    file: patches/longhorn.yaml
   - name: monitoring
     file: patches/monitoring.yaml
+  # Note: Longhorn is managed by ArgoCD via apps/longhorn-system/longhorn
+  # Not deployed as inline manifest to allow ArgoCD management
 ---
 kind: Workers
 name: workers

@@ -22290,6 +22290,11 @@ cluster:
             preserveResourcesOnDeletion: true
           template:
             metadata:
+              annotations:
+                argocd.argoproj.io/sync-wave: '{{- if eq .path.path "apps/longhorn-system/longhorn"
+                  -}} "0" {{- else if eq .path.path "apps/monitoring/kube-prometheus-stack"
+                  -}} "1" {{- else if eq .path.path "apps/monitoring/namespace" -}} "0" {{-
+                  else -}} "0" {{- end -}}'
               name: '{{ path[1] }}-{{ path.basenameNormalized }}'
               namespace: argocd
             spec:
