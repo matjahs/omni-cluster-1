@@ -22358,6 +22358,44 @@ cluster:
                 - RespectIgnoreDifferences=true
                 - SkipDryRunOnMissingResource=true
         ---
+        apiVersion: external-secrets.io/v1beta1
+        kind: ExternalSecret
+        metadata:
+          name: argocd-secret
+          namespace: argocd
+        spec:
+          data:
+          - remoteRef:
+              key: argocd/server-secretkey
+              property: server.secretkey
+            secretKey: server.secretkey
+          refreshInterval: 1h
+          secretStoreRef:
+            kind: SecretStore
+            name: vault-argocd
+          target:
+            creationPolicy: Owner
+            name: argocd-secret
+        ---
+        apiVersion: external-secrets.io/v1beta1
+        kind: SecretStore
+        metadata:
+          name: vault-argocd
+          namespace: argocd
+        spec:
+          controllerServiceAccountRef:
+            name: external-secrets
+            namespace: external-secrets
+          provider:
+            vault:
+              auth:
+                kubernetes:
+                  mountPath: kubernetes
+                  role: argocd-external-secrets
+              path: kv
+              server: https://vault.vault.svc.cluster.local:8200
+              version: v2
+        ---
         apiVersion: networking.k8s.io/v1
         kind: NetworkPolicy
         metadata:

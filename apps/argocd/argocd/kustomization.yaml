@@ -6,8 +6,11 @@ resources:
   - namespace.yaml
   - github.com/argoproj/argo-cd/manifests/cluster-install?ref=v2.9.3
   - bootstrap-app-set.yaml
+  - vault-secretstore.yaml
+  - argocd-external-secret.yaml
 
 patches:
   - path: config.yaml
   - path: params.yaml
   - path: service.yaml
+ 
