@@ -6,6 +6,10 @@ kubernetes:
   version: 1.34.1
 features:
   enableWorkloadProxy: true
+  useEmbeddedDiscoveryService: true
+  diskEncryption: false
+  backupConfiguration:
+    interval: 1h
 patches:
   - name: kubespan-enabled
     inline:
