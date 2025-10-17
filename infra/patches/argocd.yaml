@@ -22278,9 +22278,9 @@ cluster:
               generators:
               - list:
                   elements:
-                  - repoPath: examples/omni/apps/*/*
-                    repoURL: https://github.com/siderolabs/contrib.git
-                    revision: HEAD
+                  - repoPath: apps/*/*
+                    repoURL: https://github.com/matjahs/omni-cluster-1.git
+                    revision: main
               - git:
                   directories:
                   - path: '{{ repoPath }}'
@@ -22290,11 +22290,11 @@ cluster:
             preserveResourcesOnDeletion: true
           template:
             metadata:
-              name: '{{ path[3] }}-{{ path.basenameNormalized }}'
+              name: '{{ path[1] }}-{{ path.basenameNormalized }}'
               namespace: argocd
             spec:
               destination:
-                namespace: '{{ path[3] }}'
+                namespace: '{{ path[1] }}'
                 server: https://kubernetes.default.svc
               ignoreDifferences:
               - jsonPointers:

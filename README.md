@@ -5,14 +5,14 @@ It deploys a Talos Kubernetes cluster using Omni, with the following tooling:
 
 * Cilium for CNI & Hubble UI for observability
 * ArgoCD for application management
-* Rook Ceph for persistent volume management
+* Longhorn for persistent volume management
 * Prometheus & Grafana for monitoring
 
 ## Prereqs
 
 An [Omni account](https://signup.siderolabs.io/), and some machines registered to it.
 How the machines are started and joined to the Omni instance are not covered in this README, but [documentation is available](https://omni.siderolabs.com/tutorials/getting_started/).
-With the default configuration, a minimum of 6 machines, 3 of which with additional block devices for persistent storage.
+With the default configuration, a minimum of 3 machines that can serve as both control plane and worker nodes. Longhorn will use the root filesystem for storage by default, though dedicated block devices can be configured if desired.
 
 This example uses [Machine Classes](https://omni.siderolabs.com/how-to-guides/create-a-machine-class) called `omni-contrib-controlplane` and `omni-contrib-workers`.
 How they are defined is entirely dependent on the infrastructure available, they would need to be configured on the Omni instance.
@@ -42,8 +42,19 @@ Applications can be made of Helm charts, Kustomize definitions, or just Kubernet
 
 ## Extending
 
-1. Commit the contents from the `omni` directory to a new repository
-2. Configure ArgoCD to use that repository [bootstrap-app-set.yaml](apps/argocd/argocd/bootstrap-app-set.yaml)
-3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](infra/patches/argocd.yaml) (instructions can be found at the top of that file).
-4. Commit and push these changes to a hosted git repository the Omni instance has access to.
-5. Create a cluster with Omni as described above.
+ArgoCD is configured to use this repository at `https://github.com/matjahs/omni-cluster-1.git` to manage applications.
+
+To modify applications:
+1. Make changes to the Helm charts or manifests in the `apps` directory
+2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](apps/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
+3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](infra/patches/argocd.yaml) (instructions can be found at the top of that file)
+4. Commit and push changes to your repository
+5. Sync the cluster template with Omni as described above
+
+## About This Repository
+
+This repository is a customized fork of the [Siderolabs Omni Examples](https://github.com/siderolabs/contrib) with the following modifications:
+* Replaced Rook-Ceph with Longhorn for persistent storage
+* Configured for 3-node clusters with control plane nodes acting as workers
+* Enabled Cilium Gateway API support
+* Optimized replica counts and resource settings for smaller clusters
