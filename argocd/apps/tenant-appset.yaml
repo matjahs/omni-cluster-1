@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tenants
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/matjahs/omni-cluster-1.git
+        revision: main
+        directories:
+          - path: tenants/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      labels:
+        tenant: '{{path.basename}}'
+    spec:
+      project: tenants
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      sources:
+        # 1) Helm tenant baseline (local chart)
+        - repoURL: https://github.com/matjahs/omni-cluster-1.git
+          targetRevision: main
+          path: helm/tenant-baseline
+          helm:
+            valueFiles:
+              - $values/{{path}}/tenant.values.yaml
+        # 2) Optional tenant app (Kustomize overlay)
+        - repoURL: https://github.com/matjahs/omni-cluster-1.git
+          targetRevision: main
+          path: '{{path}}/app'
+      sourceRef:
+        # Allows $values to resolve from this repo for the valueFiles above
+        repoURL: https://github.com/matjahs/omni-cluster-1.git
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

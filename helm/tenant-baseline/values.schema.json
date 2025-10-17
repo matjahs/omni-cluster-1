@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "tenant-baseline values",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenantName"],
+  "properties": {
+    "tenantName": {
+      "type": "string",
+      "description": "Target namespace name for the tenant resources.",
+      "default": ""
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to apply the configured extra labels to the namespace.",
+          "default": true
+        },
+        "extra": {
+          "type": "object",
+          "description": "Additional labels to apply to the tenant namespace.",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Create the default tenant-admin Role and RoleBinding.",
+          "default": true
+        },
+        "adminGroups": {
+          "type": "array",
+          "description": "List of group subjects bound to the tenant-admin Role.",
+          "default": [
+            "tenant-admins"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "additionalRoleBindings": {
+          "type": "array",
+          "description": "Additional RoleBindings to create for the tenant namespace.",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the RoleBinding."
+              },
+              "kind": {
+                "type": "string",
+                "description": "Kind of the subject (e.g. Group, User, ServiceAccount)."
+              },
+              "subjectName": {
+                "type": "string",
+                "description": "Name of the subject to bind."
+              },
+              "roleName": {
+                "type": "string",
+                "description": "Role or ClusterRole name to bind the subject to."
+              },
+              "apiGroup": {
+                "type": "string",
+                "description": "API group for the subject when required."
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Namespace of the subject when kind is ServiceAccount."
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "subjectName",
+              "roleName"
+            ]
+          }
+        }
+      }
+    },
+    "resourceQuota": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Create the ResourceQuota resource for the tenant namespace.",
+          "default": true
+        },
+        "hard": {
+          "type": "object",
+          "description": "Hard resource quota limits to apply.",
+          "default": {
+            "requests.cpu": "2",
+            "requests.memory": "4Gi",
+            "limits.cpu": "4",
+            "limits.memory": "8Gi",
+            "pods": "25",
+            "services": "10"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      }
+    },
+    "limitRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Create the LimitRange resource for default requests and limits.",
+          "default": true
+        },
+        "default": {
+          "type": "object",
+          "description": "Default resource limits applied to containers.",
+          "default": {
+            "cpu": "500m",
+            "memory": "512Mi"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "defaultRequest": {
+          "type": "object",
+          "description": "Default resource requests applied to containers.",
+          "default": {
+            "cpu": "200m",
+            "memory": "256Mi"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "defaultDenyAll": {
+          "type": "boolean",
+          "description": "Create a deny-all ingress and egress NetworkPolicy.",
+          "default": true
+        },
+        "allowSameNamespace": {
+          "type": "boolean",
+          "description": "Allow intra-namespace ingress traffic via NetworkPolicy.",
+          "default": true
+        },
+        "extra": {
+          "type": "array",
+          "description": "Additional network policy manifests to render.",
+          "default": [],
+          "items": {
+            "type": [
+              "object",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "podSecurity": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Apply Pod Security admission labels to the namespace.",
+          "default": true
+        },
+        "level": {
+          "type": "string",
+          "description": "Pod Security standard level used for enforce/audit/warn labels.",
+          "default": "baseline",
+          "enum": [
+            "restricted",
+            "baseline",
+            "privileged"
+          ]
+        }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Create a ServiceAccount resource in the tenant namespace.",
+          "default": false
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the ServiceAccount to create when enabled.",
+          "default": "default"
+        }
+      }
+    },
+    "extras": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "config": {
+          "type": "object",
+          "description": "Arbitrary configuration bag for custom tenant overlays.",
+          "default": {},
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}
