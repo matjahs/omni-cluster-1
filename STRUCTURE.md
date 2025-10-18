@@ -3,14 +3,14 @@
 ```text
 .
 ├─ .gitignore
-├─ BOOTSTRAP.md  # Instructions to bootstrap ArgoCD and initial infra
+├─ BOOTSTRAP.md  # Instructions to bootstrap ArgoCD and initial infrastructure
 ├─ README.md     # Readme file
 ├─ STRUCTURE.md  # This file
+├─ apps/         # All Kubernetes applications (infrastructure and workloads)
+│  └─ ...
 ├─ argocd/       # ArgoCD project and application definitions
 │  └─ ...
 ├─ bootstrap/    # Talos cluster bootstrap configuration
-│  └─ ...
-├─ infra/        # Shared infrastructure components
 │  └─ ...
 ├─ helm/         # Helm chart for tenant baseline
 │  └─ ...
@@ -49,18 +49,21 @@ the `cluster-template.yaml` file defining the cluster structure and machine clas
 
 ```
 
-## Infra
+## Apps
 
-The infra folder contains configuration for shared infrastructure components deployed cluster-wide. This includes
-components such as cert-manager and ingress controllers. Each component has its own subdirectory containing
-Helm values files or Kustomize overlays as needed.
+The apps folder contains all Kubernetes applications managed by ArgoCD via GitOps. This includes infrastructure
+components (ArgoCD, Cilium, Vault, Longhorn, monitoring) deployed cluster-wide. Each application follows the
+`namespace/application-name` structure and contains Helm values files or Kustomize configurations.
 
 ```text
-├─ infra/
+├─ apps/
+│  ├─ argocd/argocd/                    # ArgoCD self-management
 │  ├─ cert-manager/
 │  │  └─ values.yaml                    # Minimal tuned values for cert-manager installation
-│  └─ ingress-nginx/
-│     └─ values.yaml
+│  ├─ kube-system/cilium/               # Cilium CNI (managed after bootstrap handover)
+│  ├─ longhorn-system/longhorn/         # Persistent storage
+│  ├─ monitoring/kube-prometheus-stack/ # Prometheus & Grafana
+│  └─ vault/vault/                      # Secrets management
 ```
 
 ## Helm Chart - Tenant Baseline
