@@ -1,14 +1,6 @@
 apiVersion: v2
 name: external-secrets-operator
-version: 0.1.0
-description: A Helm chart for External Secrets Operator
-type: application
-home: https://external-secrets.io/
-icon: https://external-secrets.io/images/logo.png
-keywords:
-  - external-secrets
-  - secrets
-  - operator
+version: 0.20.3
 dependencies:
   - name: external-secrets
     version: 0.20.3
