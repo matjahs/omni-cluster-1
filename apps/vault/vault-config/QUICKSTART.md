@@ -27,20 +27,20 @@ kubectl get secret -n argocd argocd-secret
 - No need to manually manage Vault tokens for applications
 
 ### 2. Policies (RBAC for Vault)
-| Policy | Access |
-|--------|--------|
-| `argocd` | Read `secret/data/argocd/*` and `secret/data/apps/*` |
-| `apps` | Read `secret/data/apps/<namespace>/*` |
-| `tenants` | Full access to `secret/data/tenants/<namespace>/*` |
-| `external-secrets` | Read all secrets (for ESO) |
+| Policy             | Access                                               |
+|--------------------|------------------------------------------------------|
+| `argocd`           | Read `secret/data/argocd/*` and `secret/data/apps/*` |
+| `apps`             | Read `secret/data/apps/<namespace>/*`                |
+| `tenants`          | Full access to `secret/data/tenants/<namespace>/*`   |
+| `external-secrets` | Read all secrets (for ESO)                           |
 
 ### 3. Kubernetes Auth Roles
-| Role | ServiceAccount | Namespace | Policy |
-|------|----------------|-----------|--------|
-| `argocd` | argocd-* | argocd | argocd |
+| Role               | ServiceAccount    | Namespace        | Policy           |
+|--------------------|-------------------|------------------|------------------|
+| `argocd`           | argocd-*          | argocd           | argocd           |
 | `external-secrets` | external-secrets* | external-secrets | external-secrets |
-| `app` | default | * | apps |
-| `tenant` | default | team-* | tenants |
+| `app`              | default           | *                | apps             |
+| `tenant`           | default           | team-*           | tenants          |
 
 ### 4. Example Secrets
 - `secret/argocd/admin` - Admin password
@@ -101,18 +101,18 @@ vault kv get secret/apps/my-namespace/app-config
 
 ## File Reference
 
-| File | Purpose |
-|------|---------|
-| `setup-vault.sh` | Master setup script (runs all steps) |
-| `01-enable-k8s-auth.sh` | Enable Kubernetes auth method |
-| `02-create-policies.sh` | Create Vault policies |
-| `03-create-roles.sh` | Create Kubernetes auth roles |
-| `04-populate-secrets.sh` | Create example secrets |
-| `cluster-secret-store.yaml` | ClusterSecretStore for ESO |
-| `secret-store-argocd.yaml` | SecretStore for ArgoCD |
-| `external-secret-example-argocd.yaml` | Example ExternalSecrets |
-| `external-secret-example-app.yaml` | App ExternalSecret templates |
-| `README.md` | Full documentation |
+| File                                  | Purpose                              |
+|---------------------------------------|--------------------------------------|
+| `setup-vault.sh`                      | Master setup script (runs all steps) |
+| `01-enable-k8s-auth.sh`               | Enable Kubernetes auth method        |
+| `02-create-policies.sh`               | Create Vault policies                |
+| `03-create-roles.sh`                  | Create Kubernetes auth roles         |
+| `04-populate-secrets.sh`              | Create example secrets               |
+| `cluster-secret-store.yaml`           | ClusterSecretStore for ESO           |
+| `secret-store-argocd.yaml`            | SecretStore for ArgoCD               |
+| `external-secret-example-argocd.yaml` | Example ExternalSecrets              |
+| `external-secret-example-app.yaml`    | App ExternalSecret templates         |
+| `README.md`                           | Full documentation                   |
 
 ## Next Steps
 
