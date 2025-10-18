@@ -5,7 +5,7 @@ metadata:
   name: argocd-server
   annotations:
     # Enable Omni Workload Proxying for this service
-    omni-kube-service-exposer.sidero.dev/port: '80'
+    omni-kube-service-exposer.sidero.dev/port: '8080'
     omni-kube-service-exposer.sidero.dev/label: ArgoCD
 spec:
   selector:
