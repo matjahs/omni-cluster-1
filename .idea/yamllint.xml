@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="YamllintSettings">
+    <enabled>true</enabled>
+    <binPath>/opt/homebrew/bin/yamllint</binPath>
+    <disabledRules>
+      <set>
+        <option value="comments-indentation" />
+        <option value="braces" />
+        <option value="syntax" />
+        <option value="line-length" />
+        <option value="document-start" />
+      </set>
+    </disabledRules>
+  </component>
+</project>

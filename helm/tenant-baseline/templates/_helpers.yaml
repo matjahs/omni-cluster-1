@@ -1,0 +1,5 @@
+# nonk8s
+---
+{{ define "tenant.name" -}}
+{{ required "tenantName is required" .Values.tenantName }}
+{{- end -}}

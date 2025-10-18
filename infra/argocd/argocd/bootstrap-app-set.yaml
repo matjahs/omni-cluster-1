@@ -1,0 +1,107 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bootstrap
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - repoURL: https://github.com/matjahs/omni-cluster-1.git
+                  revision: main
+                  repoPath: apps/*/*
+          - git:
+              repoURL: '{{ repoURL }}'
+              revision: '{{ revision }}'
+              directories:
+                - path: '{{ repoPath }}'
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: '{{ path[1] }}-{{ path.basenameNormalized }}'
+      namespace: argocd
+      # Add sync wave annotations to control deployment order
+      # Cilium (bootstrap, wave -1) -> Longhorn (wave 0) -> Monitoring (wave 1)
+      annotations:
+        argocd.argoproj.io/sync-wave: >-
+          {{- if eq .path.path "apps/kube-system/cilium" -}}
+          "-1"
+          {{- else if eq .path.path "apps/vault/namespace" -}}
+          "-2"
+          {{- else if eq .path.path "apps/vault/vault" -}}
+          "-1"
+          {{- else if eq .path.path "apps/longhorn-system/longhorn" -}}
+          "0"
+          {{- else if eq .path.path "apps/monitoring/kube-prometheus-stack" -}}
+          "1"
+          {{- else if eq .path.path "apps/monitoring/namespace" -}}
+          "0"
+          {{- else -}}
+          "0"
+          {{- end -}}
+    spec:
+      project: default
+      source:
+        repoURL: '{{ repoURL }}'
+        targetRevision: '{{ revision }}'
+        path: '{{ path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ path[1] }}'
+      syncPolicy:
+        automated:
+          prune: false
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+          - SkipDryRunOnMissingResource=true
+        retry:
+          limit: -1  # Infinite retries
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 5m
+      ignoreDifferences:
+        # ArgoCD tracking-id annotations - automatically added by ArgoCD
+        - group: '*'
+          kind: '*'
+          namespace: argocd
+          jsonPointers:
+            - /metadata/annotations/argocd.argoproj.io~1tracking-id
+        # Cilium generated certs - these are dynamically generated
+        - name: cilium-ca
+          kind: Secret
+          namespace: kube-system
+          jsonPointers: [/data/ca.crt, /data/ca.key]
+        - name: hubble-server-certs
+          kind: Secret
+          namespace: kube-system
+          jsonPointers: [/data/ca.crt, /data/tls.crt, /data/tls.key]
+        - name: hubble-relay-client-certs
+          kind: Secret
+          namespace: kube-system
+          jsonPointers:
+            - /data/ca.crt
+            - /data/tls.crt
+            - /data/tls.key
+        # Cilium ConfigMap - ignore runtime modifications
+        - kind: ConfigMap
+          name: cilium-config
+          namespace: kube-system
+          jqPathExpressions:
+            - .data
+        # Cilium DaemonSet - ignore status and runtime fields
+        - kind: DaemonSet
+          name: cilium
+          namespace: kube-system
+          jsonPointers:
+            - /status
+        # Cilium Deployment - ignore status and runtime fields
+        - kind: Deployment
+          name: cilium-operator
+          namespace: kube-system
+          jsonPointers: [/status]

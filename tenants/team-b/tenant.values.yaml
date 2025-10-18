@@ -1,0 +1,15 @@
+---
+tenantName: team-b
+rbac:
+  adminGroups:
+    - oidc:github:org:platform-admins
+    - oidc:github:org:team-b-admins
+resourceQuota:
+  hard:
+    requests.cpu: '4'
+    limits.memory: 16Gi
+extras:
+  config:
+    customAnnotation: team-a-value
+    customFeatureFlag: true
+    customList: [item1, item2, item3]

@@ -1,0 +1,79 @@
+---
+longhorn:
+  defaultSettings:
+    defaultReplicaCount: '2'
+    backupTarget: ''
+    defaultDataPath: /var/lib/longhorn
+    replicaSoftAntiAffinity: 'true'
+    storageOverProvisioningPercentage: '200'
+    storageMinimalAvailablePercentage: '25'
+    upgradeChecker: 'true'
+    defaultLonghornStaticStorageClass: longhorn
+    backupstorePollInterval: '300'
+    # Allow Longhorn to run on control plane nodes
+    taintToleration: node-role.kubernetes.io/control-plane:NoSchedule
+    systemManagedComponentsNodeSelector: ''
+    priorityClass: ''
+    autoSalvage: 'true'
+    disableSchedulingOnCordonedNode: 'true'
+    replicaZoneSoftAntiAffinity: 'true'
+    volumeAttachmentRecoveryPolicy: wait
+    nodeDownPodDeletionPolicy: do-nothing
+    # Reduce CPU guarantee for small clusters
+    guaranteedInstanceManagerCPU: '8'
+    orphanAutoDeletion: 'true'
+
+  # Longhorn CSI driver settings
+  # For a 3-node cluster, reduce CSI component replicas to 1
+  csi:
+    kubeletRootDir: /var/lib/kubelet
+    attacherReplicaCount: 1
+    provisionerReplicaCount: 1
+    resizerReplicaCount: 1
+    snapshotterReplicaCount: 1
+
+  # Service settings
+  service:
+    ui:
+      type: ClusterIP
+      nodePort:
+    manager:
+      type: ClusterIP
+      nodePort:
+
+  # Persistence settings
+  persistence:
+    defaultClass: true
+    defaultFsType: ext4
+    # Match the storage class replica count with defaultSettings
+    defaultClassReplicaCount: 2
+    reclaimPolicy: Delete
+    migrationsInput: false
+    recurringJobSelector:
+      enable: false
+      jobList: []
+
+  # Ingress for Longhorn UI
+  ingress:
+    enabled: false
+    host: ''
+    tls: false
+    tlsSecret: ''
+    annotations: {}
+  serviceAnnotations:
+    omni-kube-service-exposer.sidero.dev/port: '80'
+    omni-kube-service-exposer.sidero.dev/label: Longhorn
+
+  # Resource limits
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  # Enable monitoring
+  metrics:
+    serviceMonitor:
+      enabled: true

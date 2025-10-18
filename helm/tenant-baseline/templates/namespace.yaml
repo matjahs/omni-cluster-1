@@ -1,11 +1,17 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ required "tenantName is required" .Values.tenantName }}
   labels:
     tenant: {{ .Values.tenantName | quote }}
-    {{- if .Values.labels.enabled }}
-    {{- range $k, $v := .Values.labels.extra }}
+{{- if .Values.podSecurity.enabled }}
+    pod-security.kubernetes.io/enforce: {{ .Values.podSecurity.level | quote }}
+    pod-security.kubernetes.io/audit: {{ .Values.podSecurity.level | quote }}
+    pod-security.kubernetes.io/warn: {{ .Values.podSecurity.level | quote }}
+{{- end }}
+{{- if .Values.labels.enabled }}
+  {{- range $k, $v := .Values.labels.extra }}
     {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
+  {{- end }}
+{{- end }}

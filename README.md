@@ -79,7 +79,7 @@ This cluster uses Longhorn for persistent storage.
 
 ### ⚠️ IMPORTANT: Default Configuration (System Disk)
 
-The current configuration uses `/var/lib/longhorn` on the **STATE partition** of the system disk. This is configured via kubelet extraMounts in [user-volume.yaml](infra/patches/user-volume.yaml).
+The current configuration uses `/var/lib/longhorn` on the **STATE partition** of the system disk. This is configured via kubelet extraMounts in [user-volume.yaml](bootstrap/talos/patches/13-user-volume.yaml).
 
 **This configuration:**
 - ✅ Works immediately without additional setup
@@ -118,7 +118,7 @@ The cluster template includes the necessary Talos system extensions for Longhorn
 ## Applications
 
 Applications are managed by ArgoCD, and are defined in the `apps` directory.
-The first subdirectory defines the namespace and the second being the application name.
+The first subdirectory defines the namespace and the second is the application name.
 Applications can be made of Helm charts, Kustomize definitions, or just Kubernetes manifest files in YAML format.
 
 ## Extending
@@ -127,8 +127,8 @@ ArgoCD is configured to use this repository at `https://github.com/matjahs/omni-
 
 To modify applications:
 1. Make changes to the Helm charts or manifests in the `apps` directory
-2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](apps/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
-3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](infra/patches/argocd.yaml) (instructions can be found at the top of that file)
+2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](infra/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
+3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](bootstrap/talos/patches/20-argocd.yaml) (instructions can be found at the top of that file)
 4. Commit and push changes to your repository
 5. Sync the cluster template with Omni as described above
 

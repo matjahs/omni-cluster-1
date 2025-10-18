@@ -1,3 +1,4 @@
+---
 {{- if .Values.resourceQuota.enabled }}
 apiVersion: v1
 kind: ResourceQuota
@@ -6,5 +7,5 @@ metadata:
   namespace: {{ .Values.tenantName }}
 spec:
   hard:
-{{- toYaml .Values.resourceQuota.hard | nindent 4 }}
+{{ toYaml .Values.resourceQuota.hard | indent 4 }}
 {{- end }}

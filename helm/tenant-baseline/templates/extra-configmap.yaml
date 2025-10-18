@@ -1,0 +1,15 @@
+---
+{{- if .Values.extras.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tenant-extras
+  namespace: {{ include "tenant.name" . }}
+  labels:
+    tenant: {{ .Values.tenantName }}
+    app.kubernetes.io/part-of: tenant-baseline
+data:
+{{- range $k, $v := .Values.extras.config }}
+  {{ $k }}: {{ $v | quote }}
+{{- end }}
+{{- end }}
