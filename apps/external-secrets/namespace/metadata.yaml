@@ -1,2 +1,4 @@
 name: external-secrets-operator-namespace
 syncWave: "-1"
+namespace: external-secrets
+appPath: apps/external-secrets/namespace

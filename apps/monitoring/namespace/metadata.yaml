@@ -1,2 +1,4 @@
 name: kube-prometheus-stack-namespace
 syncWave: "0"
+namespace: monitoring
+appPath: apps/monitoring/namespace

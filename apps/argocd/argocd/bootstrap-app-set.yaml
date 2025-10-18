@@ -3,39 +3,31 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: bootstrap
+  namespace: argocd
 spec:
   generators:
-    - matrix:
-        generators:
-          - list:
-              elements:
-                - repoURL: https://github.com/matjahs/omni-cluster-1.git
-                  revision: main
-                  repoPath: apps/*/*
-          - git:
-              repoURL: '{{ repoURL }}'
-              revision: '{{ revision }}'
-              directories:
-                - path: '{{ repoPath }}'
-              files:
-                - path: "{{ path }}/metadata.yaml"
+    - git:
+        repoURL: https://github.com/matjahs/omni-cluster-1.git
+        revision: main
+        files:
+          - path: "apps/*/*/metadata.yaml"
   syncPolicy:
     preserveResourcesOnDeletion: true
   template:
     metadata:
-      name: '{{ name | default (path | splitList "/" | last) }}'
+      name: '{{ name }}'
       namespace: argocd
       annotations:
-        argocd.argoproj.io/sync-wave: "{{ syncWave | default '0' }}"
+        argocd.argoproj.io/sync-wave: "{{ syncWave }}"
     spec:
       project: default
       source:
-        repoURL: '{{ repoURL }}'
-        targetRevision: '{{ revision }}'
-        path: '{{ path }}'
+        repoURL: https://github.com/matjahs/omni-cluster-1.git
+        targetRevision: main
+        path: '{{ appPath }}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{ path[1] }}'
+        namespace: '{{ namespace }}'
       syncPolicy:
         automated:
           prune: false

@@ -1,2 +1,4 @@
 name: argocd-app-manager
 syncWave: "1"
+namespace: argocd
+appPath: apps/argocd/argocd

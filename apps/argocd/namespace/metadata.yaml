@@ -1,2 +1,4 @@
-name: argocd-namespace
+name: "argocd-namespace"
 syncWave: "0"
+namespace: "argocd"
+appPath: "apps/argocd/namespace"

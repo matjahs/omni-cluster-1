@@ -1,3 +1,5 @@
 ---
 name: cilium-config
 syncWave: "0"
+namespace: kube-system
+appPath: apps/kube-system/cilium-config

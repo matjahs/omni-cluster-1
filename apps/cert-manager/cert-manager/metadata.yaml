@@ -1,2 +1,4 @@
 name: cert-manager
 syncWave: "0"
+namespace: cert-manager
+appPath: apps/cert-manager/cert-manager

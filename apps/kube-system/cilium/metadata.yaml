@@ -1,2 +1,4 @@
 name: cilium-chart
 syncWave: "-1"
+namespace: kube-system
+appPath: apps/kube-system/cilium
