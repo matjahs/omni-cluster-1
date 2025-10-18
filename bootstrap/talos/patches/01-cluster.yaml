@@ -1,0 +1,29 @@
+---
+cluster:
+  allowSchedulingOnControlPlanes: true
+  apiServer:
+    extraArgs:
+      bind-address: 0.0.0.0
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+  inlineManifests:
+    - name: kube-system-pod-security
+      contents: |-
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: kube-system
+          labels:
+            pod-security.kubernetes.io/enforce: privileged
+            pod-security.kubernetes.io/warn: privileged
+            pod-security.kubernetes.io/audit: privileged
+            pod-security.kubernetes.io/enforce-version: latest
+            pod-security.kubernetes.io/warn-version: latest
+            pod-security.kubernetes.io/audit-version: latest

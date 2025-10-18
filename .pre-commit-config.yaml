@@ -1,0 +1,87 @@
+---
+# Pre-commit hooks for GitOps repository validation
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(.*\.patch|.*\.diff)$
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+        exclude: |
+          (?x)^(
+            .*\.helmignore$|
+            .*templates/.*\.yaml$|
+            .*templates/.*\.yml$
+            bootstrap/.*\.yaml$|
+            bootstrap/.*\.yml$
+          )
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        exclude: bootstrap/talos/patches/.*\.yaml$
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: [-d, '{extends: relaxed, rules: {line-length: {max: 120}}}']
+        exclude: |
+          (?x)^(
+            .*templates/.*\.yaml$|
+            .*templates/.*\.yml$|
+            helm/.*\.yaml$|
+          )
+
+  # Kubernetes manifest validation
+  - repo: https://github.com/Agilicus/pre-commit-hook-k8svalidate.git
+    rev: v0.2.0
+    hooks:
+      - id: k8svalidate
+        args: [--exclude, '**/*.patch.yaml', --exclude, '**/templates/**', --exclude, 'bootstrap/talos/patches/**']
+        files: .yaml$
+
+  # Shell script validation
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: [-x]
+
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
+    hooks:
+      - id: gitleaks
+        exclude: bootstrap/talos/patches/.*\.yaml$
+
+  # GitGuardian for secret detection
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.43.0
+    hooks:
+      - id: ggshield
+        language_version: python3
+        stages: [pre-commit]
+        args: ['secret', 'scan', 'pre-commit', '--exit-zero']
+        exclude: .secrets.baseline
+
+  # Kubernetes schema validation with kubeconform
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: []
+        exclude: |
+          (?x)^(
+            bootstrap/talos/patches/.*\.yaml$|
+            .*templates/.*\.yaml$
+          )

@@ -1,3 +1,4 @@
+---
 {{- if .Values.podSecurity.enabled }}
 apiVersion: v1
 kind: Namespace
@@ -5,6 +6,6 @@ metadata:
   name: {{ .Values.tenantName }}
   labels:
     pod-security.kubernetes.io/enforce: {{ .Values.podSecurity.level | quote }}
-    pod-security.kubernetes.io/audit:   {{ .Values.podSecurity.level | quote }}
-    pod-security.kubernetes.io/warn:    {{ .Values.podSecurity.level | quote }}
+    pod-security.kubernetes.io/audit: {{ .Values.podSecurity.level | quote }}
+    pod-security.kubernetes.io/warn: {{ .Values.podSecurity.level | quote }}
 {{- end }}

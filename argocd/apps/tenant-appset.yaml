@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -14,6 +15,7 @@ spec:
     metadata:
       name: '{{path.basename}}'
       labels:
+        # noinspection KubernetesUnknownValues
         tenant: '{{path.basename}}'
     spec:
       project: tenants
@@ -32,12 +34,11 @@ spec:
         - repoURL: https://github.com/matjahs/omni-cluster-1.git
           targetRevision: main
           path: '{{path}}/app'
-      sourceRef:
+      source:
         # Allows $values to resolve from this repo for the valueFiles above
         repoURL: https://github.com/matjahs/omni-cluster-1.git
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
+        syncOptions: [CreateNamespace=true]

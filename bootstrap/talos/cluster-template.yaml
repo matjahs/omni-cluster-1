@@ -1,0 +1,66 @@
+---
+kind: Cluster
+name: talos-default
+talos:
+  version: v1.11.3
+kubernetes:
+  version: 1.34.1
+features:
+  enableWorkloadProxy: true
+  useEmbeddedDiscoveryService: true
+  diskEncryption: false
+  backupConfiguration:
+    interval: 1h
+patches:
+  - name: kubespan-enabled
+    inline:
+      machine:
+        network:
+          kubespan:
+            enabled: true
+  - name: cni
+    file: patches/00-cni.yaml
+systemExtensions:
+  - siderolabs/iscsi-tools
+  - siderolabs/util-linux-tools
+  - siderolabs/vmtoolsd-guest-agent
+---
+kind: ControlPlane
+machineClass:
+  name: k8s-rumc-01-nodes
+  size: 3
+patches:
+  - name: cluster
+    file: patches/01-cluster.yaml
+  - name: cilium
+    file: patches/10-cilium.yaml
+  - name: user-volume
+    file: patches/13-user-volume.yaml
+# Note: Longhorn is managed by ArgoCD via apps/longhorn-system/longhorn
+#  - name: longhorn
+#    file: patches/15-longhorn.yaml
+  - name: argocd
+    file: patches/20-argocd.yaml
+  - name: root-app
+    file: patches/30-root-app.yaml
+---
+kind: Workers
+name: workers
+labels: {}
+annotations: {}
+machines: []
+machineClass:
+  name: k8s-rumc-01-workers
+  size: unlimited
+updateStrategy:
+  rolling:
+    maxParallelism: 2
+deleteStrategy:
+  type: Rolling
+  rolling:
+    maxParallelism: 2
+patches: []
+systemExtensions:
+  - siderolabs/iscsi-tools
+  - siderolabs/util-linux-tools
+  - siderolabs/vmtoolsd-guest-agent

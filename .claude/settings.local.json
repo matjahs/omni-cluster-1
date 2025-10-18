@@ -2,9 +2,26 @@
   "permissions": {
     "allow": [
       "Bash(helm dependency build:*)",
-      "Bash(kubectl kustomize:*)"
+      "Bash(kubectl kustomize:*)",
+      "mcp__kubernetes__kubectl_get",
+      "mcp__kubernetes__kubectl_context",
+      "mcp__kubernetes__kubectl_describe",
+      "Bash(kubectl *)",
+      "Bash(helm *)",
+      "Bash(awk '{print $1}')",
+      "Bash(xargs kubectl delete crd)",
+      "Bash(kustomize build .)",
+      "Bash(yq -i 'with(.cluster.inlineManifests.[] | select(.name==\"\"\"\"argocd\"\"\"\"); .contents=load_str(\"\"\"\"/dev/stdin\"\"\"\"))' ../../../boostrap/talos/patches/20-argocd.yaml)",
+      "Bash(yq -i 'with(.cluster.inlineManifests.[] | select(.name==\"\"\"\"argocd\"\"\"\"); .contents=load_str(\"\"\"\"/dev/stdin\"\"\"\"))' ../../../bootstrap/talos/patches/20-argocd.yaml)",
+      "Bash(kustomize build infra/argocd/argocd)",
+      "Bash(yq -i 'with(.cluster.inlineManifests.[] | select(.name==\"\"\"\"argocd\"\"\"\"); .contents=load_str(\"\"\"\"/dev/stdin\"\"\"\"))' bootstrap/talos/patches/20-argocd.yaml)",
+      "Bash(yq -i 'with(.cluster.inlineManifests.[] | select(.name==\"\"\"\"argocd\"\"\"\"); .contents=load_str(\"\"\"\"/dev/stdin\"\"\"\"))' boostrap/talos/patches/20-argocd.yaml)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "splunk-mcp-server"
+  ]
 }

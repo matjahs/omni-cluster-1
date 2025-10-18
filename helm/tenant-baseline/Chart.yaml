@@ -1,6 +1,9 @@
+---
 apiVersion: v2
 name: tenant-baseline
 version: 0.1.0
-kubeVersion: ">=1.25.0-0"
-description: Baseline primitives for multi-tenant namespaces (RBAC, quotas, netpols, extras)
+kubeVersion: '>=1.25.0-0'
+description: >
+  Baseline primitives for multi-tenant namespaces
+  (RBAC, quotas, network policies, extras)
 type: application

@@ -1,21 +1,22 @@
+---
 {{- if or .Values.networkPolicy.defaultDenyAll .Values.networkPolicy.allowSameNamespace }}
 {{- if .Values.networkPolicy.defaultDenyAll }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-all
-  namespace: {{ .Values.tenantName }}
+  namespace: {{ include "tenant.name" . }}
 spec:
   podSelector: {}
   policyTypes: [Ingress, Egress]
----
 {{- end }}
+---
 {{- if .Values.networkPolicy.allowSameNamespace }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-same-namespace
-  namespace: {{ .Values.tenantName }}
+  namespace: {{ include "tenant.name" . }}
 spec:
   podSelector: {}
   ingress:
