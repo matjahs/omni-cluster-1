@@ -4,7 +4,8 @@
       "Bash(tree -L 4 apps/)",
       "Bash(cat apps/cert-manager/values.yaml)",
       "Bash(tree -L 3 apps/)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(tree -L 3 apps/argocd/)"
     ],
     "deny": [],
     "ask": []
