@@ -45,17 +45,18 @@
 
       ```shell
       kubectl apply -n argocd -f argocd/projects/tenants-project.yaml
-      kubectl apply -n argocd -f argocd/apps/infra.yaml
       kubectl apply -n argocd -f argocd/apps/tenants-appset.yaml
       ```
 
-3. ArgoCD will then deploy the infrastructure components defined in `apps/` folder.
+3. ArgoCD will then deploy the infrastructure components defined in `apps/` folder via the bootstrap ApplicationSet.
 
 ## Flow
 
 ```mermaid
 flowchart LR
-    A[bootstrap/talos/...] --> B[argocd/apps/infra.yaml]
-    B --> C[apps/... ]
-    C --> D[tenants/... ]
+    A[bootstrap/talos/patches] --> B[ArgoCD Bootstrap]
+    B --> C[apps/** ApplicationSet]
+    B --> D[tenants/** ApplicationSet]
+    C --> E[Infrastructure Apps]
+    D --> F[Tenant Namespaces]
 ```

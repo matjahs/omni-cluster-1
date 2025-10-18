@@ -10,7 +10,6 @@ longhorn:
     upgradeChecker: 'true'
     defaultLonghornStaticStorageClass: longhorn
     backupstorePollInterval: '300'
-    # Allow Longhorn to run on control plane nodes
     taintToleration: node-role.kubernetes.io/control-plane:NoSchedule
     systemManagedComponentsNodeSelector: ''
     priorityClass: ''
@@ -19,12 +18,9 @@ longhorn:
     replicaZoneSoftAntiAffinity: 'true'
     volumeAttachmentRecoveryPolicy: wait
     nodeDownPodDeletionPolicy: do-nothing
-    # Reduce CPU guarantee for small clusters
     guaranteedInstanceManagerCPU: '8'
     orphanAutoDeletion: 'true'
 
-  # Longhorn CSI driver settings
-  # For a 3-node cluster, reduce CSI component replicas to 1
   csi:
     kubeletRootDir: /var/lib/kubelet
     attacherReplicaCount: 1
@@ -32,7 +28,6 @@ longhorn:
     resizerReplicaCount: 1
     snapshotterReplicaCount: 1
 
-  # Service settings
   service:
     ui:
       type: ClusterIP

@@ -22,16 +22,14 @@
 
 The ArgoCD folder contains the project and application definitions to bootstrap the cluster. The `projects/` folder
 contains the ArgoCD Project definition for the tenants, while the `apps/` folder contains the ApplicationSet to generate
-one Application per tenant based on the Helm chart and optional Kustomize manifests. It also contains an Application for
-shared infrastructure components.
+one Application per tenant based on the Helm chart and optional Kustomize manifests.
 
 ```text
 ├─ argocd/
 │  ├─ projects/
 │  │  └─ tenants-project.yaml
 │  └─ apps/
-│     ├─ tenants-appset.yaml            # Generates one Application per tenant \(Helm + optional Kustomize app\)
-│     └─ infra.yaml                     # Defines shared cluster add-ons such as cert-manager and ingress
+│     └─ tenants-appset.yaml            # Generates one Application per tenant \(Helm + optional Kustomize app\)
 ```
 
 ## Bootstrap
@@ -58,8 +56,8 @@ components (ArgoCD, Cilium, Vault, Longhorn, monitoring) deployed cluster-wide. 
 ```text
 ├─ apps/
 │  ├─ argocd/argocd/                    # ArgoCD self-management
-│  ├─ cert-manager/
-│  │  └─ values.yaml                    # Minimal tuned values for cert-manager installation
+│  ├─ cert-manager/cert-manager/        # Certificate management
+│  ├─ external-secrets/external-secrets-operator/ # Vault-Kubernetes secrets integration
 │  ├─ kube-system/cilium/               # Cilium CNI (managed after bootstrap handover)
 │  ├─ longhorn-system/longhorn/         # Persistent storage
 │  ├─ monitoring/kube-prometheus-stack/ # Prometheus & Grafana
