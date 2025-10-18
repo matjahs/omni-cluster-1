@@ -44,8 +44,8 @@
 2. Apply
 
       ```shell
-      kubectl apply -n argocd -f argocd/projects/tenants-project.yaml
-      kubectl apply -n argocd -f argocd/apps/tenants-appset.yaml
+      kubectl apply -n argocd -f argocd/projects/tenants-projects.yaml
+      kubectl apply -n argocd -f argocd/apps/tenant-appset.yaml
       ```
 
 3. ArgoCD will then deploy the infrastructure components defined in `apps/` folder via the bootstrap ApplicationSet.
