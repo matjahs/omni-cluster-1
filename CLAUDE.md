@@ -19,26 +19,28 @@ This repository manages a **Talos Kubernetes cluster** deployed via **Sidero Lab
 
 ```
 omni-cluster-1/
-├── infra/                          # Omni cluster definition
-│   ├── cluster-template.yaml       # Main cluster spec (Talos/K8s versions, features)
-│   └── patches/                    # Machine config patches
-│       ├── argocd.yaml            # ArgoCD bootstrap inline manifest
-│       ├── cilium.yaml            # Cilium bootstrap inline manifest
-│       ├── cni.yaml               # CNI configuration
-│       ├── user-volume.yaml       # Longhorn storage mounts
-│       └── ...
+├── bootstrap/                      # Omni/Talos cluster definition
+│   └── talos/
+│       ├── cluster-template.yaml   # Main cluster spec (Talos/K8s versions, features)
+│       └── patches/                # Machine config patches
+│           ├── argocd.yaml        # ArgoCD bootstrap inline manifest
+│           ├── cilium.yaml        # Cilium bootstrap inline manifest
+│           ├── cni.yaml           # CNI configuration
+│           ├── user-volume.yaml   # Longhorn storage mounts
+│           └── ...
+├── apps/                           # All Kubernetes applications (GitOps-managed)
+│   ├── argocd/argocd/             # ArgoCD self-management
+│   ├── kube-system/cilium/        # Cilium (managed by ArgoCD after bootstrap)
+│   ├── longhorn-system/longhorn/  # Persistent storage
+│   ├── monitoring/kube-prometheus-stack/  # Prometheus & Grafana
+│   ├── vault/vault/               # Secrets management
+│   └── cert-manager/              # Certificate management
 ├── argocd/                         # ArgoCD application definitions
-│   ├── apps/                       # Infrastructure apps (per-namespace/app structure)
-│   │   ├── argocd/argocd/         # ArgoCD self-management
-│   │   ├── kube-system/cilium/    # Cilium (managed by ArgoCD after bootstrap)
-│   │   ├── longhorn-system/longhorn/
-│   │   ├── monitoring/kube-prometheus-stack/
-│   │   └── vault/vault/
-│   ├── projects/                   # ArgoCD AppProjects
-│   │   └── tenants-projects.yaml  # Tenant governance boundaries
-│   └── apps/
-│       ├── tenant-appset.yaml      # Tenant ApplicationSet
-│       └── infra.yaml              # Infrastructure apps (cert-manager, ingress-nginx)
+│   ├── apps/
+│   │   ├── tenant-appset.yaml      # Tenant ApplicationSet
+│   │   └── infra.yaml              # Infrastructure apps (cert-manager)
+│   └── projects/                   # ArgoCD AppProjects
+│       └── tenants-projects.yaml  # Tenant governance boundaries
 ├── helm/                           # Local Helm charts
 │   └── tenant-baseline/            # Multi-tenant baseline chart
 │       ├── Chart.yaml
@@ -57,7 +59,7 @@ omni-cluster-1/
 
 ```bash
 # Deploy/update cluster configuration
-cd infra
+cd bootstrap/talos
 omnictl cluster template sync --file cluster-template.yaml
 
 # Check cluster status
@@ -85,7 +87,7 @@ argocd app get <app-name> --refresh
 
 ```bash
 # Update Helm chart dependencies (for apps using local charts)
-cd argocd/apps/<namespace>/<app-name>
+cd apps/<namespace>/<app-name>
 helm dependency update
 
 # Test Helm template rendering
@@ -101,10 +103,10 @@ helm lint .
 When modifying ArgoCD's self-managed configuration:
 
 ```bash
-# Regenerate argocd.yaml patch after modifying argocd/apps/argocd/argocd/
-kustomize build argocd/apps/argocd/argocd | \
+# Regenerate argocd.yaml patch after modifying apps/argocd/argocd/
+kustomize build apps/argocd/argocd | \
   yq -i 'with(.cluster.inlineManifests.[] | select(.name=="argocd"); .contents=load_str("/dev/stdin"))' \
-  infra/patches/argocd.yaml
+  bootstrap/talos/patches/argocd.yaml
 ```
 
 ## Architecture Patterns
@@ -117,7 +119,7 @@ This cluster uses a **two-phase bootstrap** to solve the chicken-and-egg problem
 - **Cilium CNI**: Deployed inline to enable pod networking immediately
 - **ArgoCD**: Deployed inline to enable GitOps from cluster creation
 
-These are embedded in `infra/patches/cilium.yaml` and `infra/patches/argocd.yaml`.
+These are embedded in `bootstrap/talos/patches/cilium.yaml` and `bootstrap/talos/patches/argocd.yaml`.
 
 **Phase 2: ArgoCD Management**
 After bootstrap, ArgoCD takes over via sync waves:
@@ -128,7 +130,7 @@ After bootstrap, ArgoCD takes over via sync waves:
 - **Wave 0**: Longhorn storage, namespaces
 - **Wave 1**: Monitoring stack (requires persistent storage)
 
-Sync waves are defined in `argocd/apps/argocd/argocd/bootstrap-app-set.yaml`.
+Sync waves are defined in `apps/argocd/argocd/bootstrap-app-set.yaml`.
 
 ### Multi-Tenant Pattern
 
@@ -148,7 +150,7 @@ To add a new tenant:
 
 ### Storage Configuration
 
-Longhorn uses `/var/lib/longhorn` on the **Talos STATE partition** (configured in `infra/patches/user-volume.yaml`).
+Longhorn uses `/var/lib/longhorn` on the **Talos STATE partition** (configured in `bootstrap/talos/patches/user-volume.yaml`).
 
 **Key points:**
 - Safe for dev/test (no disk partitioning required)
@@ -163,26 +165,26 @@ Longhorn uses `/var/lib/longhorn` on the **Talos STATE partition** (configured i
 
 This cluster integrates **Vault** with **External Secrets Operator**:
 
-- Vault deployed in `argocd/apps/vault/vault/`
-- ArgoCD uses `ExternalSecret` for credentials (`argocd/apps/argocd/argocd/argocd-external-secret.yaml`)
-- Vault authenticates via Kubernetes token review (`vault/namespace/tokenreview-clusterrolebinding.yaml`)
+- Vault deployed in `apps/vault/vault/`
+- ArgoCD uses `ExternalSecret` for credentials (`apps/argocd/argocd/argocd-external-secret.yaml`)
+- Vault authenticates via Kubernetes token review (`apps/vault/namespace/tokenreview-clusterrolebinding.yaml`)
 
 ## GitOps Workflow
 
-1. **Modify files** in `argocd/apps/`, `tenants/`, or `helm/`
+1. **Modify files** in `apps/`, `tenants/`, or `helm/`
 2. **Update repository URL** in `bootstrap-app-set.yaml` if using a fork
 3. **Regenerate patches** if modifying ArgoCD bootstrap (see commands above)
 4. **Commit and push** to the repository
 5. ArgoCD **auto-syncs** applications (or manually sync via UI/CLI)
 
-For infrastructure changes:
-1. Modify `infra/cluster-template.yaml` or `infra/patches/`
+For Talos/cluster infrastructure changes:
+1. Modify `bootstrap/talos/cluster-template.yaml` or `bootstrap/talos/patches/`
 2. Run `omnictl cluster template sync --file cluster-template.yaml`
 
 ## Important Notes
 
 - **Repository URL**: Currently set to `https://github.com/matjahs/omni-cluster-1.git`. Update in:
-  - `argocd/apps/argocd/argocd/bootstrap-app-set.yaml`
+  - `apps/argocd/argocd/bootstrap-app-set.yaml`
   - `argocd/apps/tenant-appset.yaml`
   - `argocd/apps/infra.yaml`
 

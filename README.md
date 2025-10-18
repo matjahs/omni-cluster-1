@@ -1,4 +1,4 @@
-# Siderolabs Omni Example
+# omni-cluster-1
 
 This example shows how to manage a Talos Kubernetes cluster with Sidero Labs' Omni.
 It deploys a Talos Kubernetes cluster using Omni, with the following tooling:
@@ -127,7 +127,7 @@ ArgoCD is configured to use this repository at `https://github.com/matjahs/omni-
 
 To modify applications:
 1. Make changes to the Helm charts or manifests in the `apps` directory
-2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](infra/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
+2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](apps/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
 3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](bootstrap/talos/patches/20-argocd.yaml) (instructions can be found at the top of that file)
 4. Commit and push changes to your repository
 5. Sync the cluster template with Omni as described above
