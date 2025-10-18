@@ -25,6 +25,8 @@ cilium:
   # Enable Gateway API support
   gatewayAPI:
     enabled: true
+    enableAlpn: true
+    enableAppProtocol: true
   # Enable Cilium Ingress Controller
   ingressController:
     enabled: true

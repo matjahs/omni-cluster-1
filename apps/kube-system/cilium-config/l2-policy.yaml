@@ -1,7 +1,17 @@
 ---
-apiVersion: cilium.io/v2alpha1
+apiVersion: cilium.io/v2
 kind: CiliumL2AnnouncementPolicy
 metadata:
   name: l2-default
 spec:
+  serviceSelector:
+    matchLabels:
+      color: blue
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  interfaces:
+    - ^eth[0-9]+$
+  externalIPs: true
   loadBalancerIPs: true

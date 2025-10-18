@@ -5,3 +5,10 @@ metadata:
   name: kube-system
   labels:
     name: kube-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cilium-secrets
+  labels:
+    name: cilium-secrets
