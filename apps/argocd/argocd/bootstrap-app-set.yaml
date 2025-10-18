@@ -17,37 +17,16 @@ spec:
               revision: '{{ revision }}'
               directories:
                 - path: '{{ repoPath }}'
+              files:
+                - path: "{{ path }}/metadata.yaml"
   syncPolicy:
     preserveResourcesOnDeletion: true
   template:
     metadata:
-      name: '{{ path[1] }}-{{ path.basenameNormalized }}'
+      name: '{{ name | default (path | splitList "/" | last) }}'
       namespace: argocd
-      # Add sync wave annotations to control deployment order
-      # Wave -2: Namespaces | Wave -1: Vault, Cilium | Wave 0: ESO, Longhorn, cert-manager | Wave 1: ArgoCD vault secrets, Monitoring
       annotations:
-        argocd.argoproj.io/sync-wave: >-
-          {{- if eq .path.path "apps/vault/namespace" -}}
-          "-2"
-          {{- else if eq .path.path "apps/kube-system/cilium" -}}
-          "-1"
-          {{- else if eq .path.path "apps/vault/vault" -}}
-          "-1"
-          {{- else if eq .path.path "apps/external-secrets/external-secrets-operator" -}}
-          "0"
-          {{- else if eq .path.path "apps/cert-manager/cert-manager" -}}
-          "0"
-          {{- else if eq .path.path "apps/longhorn-system/longhorn" -}}
-          "0"
-          {{- else if eq .path.path "apps/monitoring/namespace" -}}
-          "0"
-          {{- else if eq .path.path "apps/argocd/argocd-vault-secrets" -}}
-          "1"
-          {{- else if eq .path.path "apps/monitoring/kube-prometheus-stack" -}}
-          "1"
-          {{- else -}}
-          "0"
-          {{- end -}}
+        argocd.argoproj.io/sync-wave: "{{ syncWave | default '0' }}"
     spec:
       project: default
       source:
@@ -75,7 +54,7 @@ spec:
         # ArgoCD tracking-id annotations - automatically added by ArgoCD
         - group: '*'
           kind: '*'
-          namespace: argocd
+          namespace: '*'
           jsonPointers:
             - /metadata/annotations/argocd.argoproj.io~1tracking-id
         # ExternalSecret - ignore status updates from ESO controller

@@ -39,10 +39,10 @@ patches:
 # Note: Longhorn is managed by ArgoCD via apps/longhorn-system/longhorn
 #  - name: longhorn
 #    file: patches/15-longhorn.yaml
-  - name: argocd
-    file: patches/20-argocd.yaml
-  - name: root-app
-    file: patches/30-root-app.yaml
+#  - name: argocd
+#    file: patches/20-argocd.yaml
+#  - name: root-app
+#    file: patches/30-root-app.yaml
 ---
 kind: Workers
 name: workers
