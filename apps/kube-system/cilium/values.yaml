@@ -31,6 +31,14 @@ cilium:
   # Use KubePrism to access cluster API
   k8sServiceHost: localhost
   k8sServicePort: 7445
+  # enable L2 IPAM pool
+  l2announcements:
+    enabled: true
+  k8sClientRateLimit:
+    qps: 10
+    burst: 20
+  externalIPS:
+    enabled: true
   # Enable Hubble
   hubble:
     relay:
