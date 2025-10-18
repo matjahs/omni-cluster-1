@@ -13,6 +13,7 @@ This repository manages a **Talos Kubernetes cluster** deployed via **Sidero Lab
 - **Cilium**: CNI with Gateway API support
 - **Longhorn**: Persistent storage
 - **Vault**: Secrets management
+- **External Secrets Operator**: Vault integration for Kubernetes secrets
 - **Prometheus/Grafana**: Monitoring stack
 
 ## Repository Structure
@@ -30,15 +31,15 @@ omni-cluster-1/
 │           └── ...
 ├── apps/                           # All Kubernetes applications (GitOps-managed)
 │   ├── argocd/argocd/             # ArgoCD self-management
+│   ├── cert-manager/cert-manager/ # Certificate management
+│   ├── external-secrets/external-secrets-operator/  # Vault-Kubernetes secrets integration
 │   ├── kube-system/cilium/        # Cilium (managed by ArgoCD after bootstrap)
 │   ├── longhorn-system/longhorn/  # Persistent storage
 │   ├── monitoring/kube-prometheus-stack/  # Prometheus & Grafana
-│   ├── vault/vault/               # Secrets management
-│   └── cert-manager/              # Certificate management
+│   └── vault/vault/               # Secrets management
 ├── argocd/                         # ArgoCD application definitions
 │   ├── apps/
-│   │   ├── tenant-appset.yaml      # Tenant ApplicationSet
-│   │   └── infra.yaml              # Infrastructure apps (cert-manager)
+│   │   └── tenant-appset.yaml      # Tenant ApplicationSet
 │   └── projects/                   # ArgoCD AppProjects
 │       └── tenants-projects.yaml  # Tenant governance boundaries
 ├── helm/                           # Local Helm charts
@@ -127,7 +128,7 @@ After bootstrap, ArgoCD takes over via sync waves:
 - **Wave -1**: Vault, Cilium (handover from inline)
   - Uses `ServerSideApply` to adopt existing Cilium resources
   - `ignoreDifferences` for dynamically generated certs/runtime fields
-- **Wave 0**: Longhorn storage, namespaces
+- **Wave 0**: External Secrets Operator, cert-manager, Longhorn storage, namespaces
 - **Wave 1**: Monitoring stack (requires persistent storage)
 
 Sync waves are defined in `apps/argocd/argocd/bootstrap-app-set.yaml`.
@@ -186,7 +187,6 @@ For Talos/cluster infrastructure changes:
 - **Repository URL**: Currently set to `https://github.com/matjahs/omni-cluster-1.git`. Update in:
   - `apps/argocd/argocd/bootstrap-app-set.yaml`
   - `argocd/apps/tenant-appset.yaml`
-  - `argocd/apps/infra.yaml`
 
 - **Machine Classes**: Cluster uses `k8s-rumc-01-nodes` and `k8s-rumc-01-workers`. These must exist in your Omni instance.
 

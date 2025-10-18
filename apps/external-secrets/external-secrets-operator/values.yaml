@@ -1,0 +1,9 @@
+external-secrets:
+  installCRDs: true
+
+  # Create namespace for external-secrets
+  createNamespace: false
+
+  # Webhook configuration
+  webhook:
+    port: 9443

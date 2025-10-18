@@ -10,5 +10,6 @@ resources:
   - argocd-external-secret.yaml
 patches:
   - path: config.yaml
+  - path: config-cmd-params.yaml
   - path: params.yaml
   - path: service.yaml
