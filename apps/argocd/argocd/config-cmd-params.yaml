@@ -6,4 +6,5 @@ metadata:
 data:
   # Use Omni Workload Proxying HTTP-only
   server.insecure: 'true'
-  server.disable.auth: 'true'
+  # Allow embedding in iframes for Omni
+  server.x.frame.options: ''
