@@ -1,5 +1,11 @@
 external-secrets:
   installCRDs: true
+  crds:
+    createClusterExternalSecret: true
+    createClusterSecretStore: true
+    createClusterGenerator: true
+    createClusterPushSecret: true
+    createPushSecret: true
   replicaCount: 1
   # Create namespace for external-secrets
   createNamespace: false
