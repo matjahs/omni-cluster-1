@@ -6,11 +6,11 @@ metadata:
   annotations:
     omni-kube-service-exposer.sidero.dev/label: Team-B
     omni-kube-service-exposer.sidero.dev/prefix: teamb
-    omni-kube-service-exposer.sidero.dev/port: '8080'
+    omni-kube-service-exposer.sidero.dev/port: '6030'
 spec:
   type: ClusterIP
   selector:
     app: hello
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: 6030

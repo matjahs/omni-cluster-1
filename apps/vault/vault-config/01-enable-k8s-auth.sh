@@ -19,6 +19,12 @@ echo "==> Configuring Kubernetes auth method..."
 vault write auth/kubernetes/config \
   kubernetes_host="https://kubernetes.default.svc:443"
 
+
+vault write auth/kubernetes/config \
+  token_reviewer_jwt="$SA_JWT_TOKEN" \
+  kubernetes_host="$K8S_HOST" \
+  kubernetes_ca_cert="$SA_CA_CRT"
+
 echo "==> Kubernetes auth method configured successfully!"
 echo ""
 echo "Next steps:"

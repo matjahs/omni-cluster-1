@@ -1,5 +1,35 @@
 # Vault Quick Start
 
+## Initialise Vault
+
+```bash
+$ kubectl exec -n vault svc/vault -- vault operator init -key-shares=1 -key-threshold=1 -format=json > vault-keys.json
+
+# Save unseal key and root token securely
+$ export VAULT_UNSEAL_KEY=$(jq -r '.unseal_keys_b64[0]' vault-keys.json)
+$ export VAULT_ROOT_TOKEN=$(jq -r '.root_token' vault-keys.json)
+$ echo "VAULT_UNSEAL_KEY=$VAULT_UNSEAL_KEY" > vault.env
+$ echo "VAULT_ROOT_TOKEN=$VAULT_ROOT_TOKEN" >> vault.env
+
+$ kubectl -n vault exec svc/vault -- vault operator unseal $VAULT_UNSEAL_KEY
+$ kubectl -n vault exec svc/vault -- vault login $VAULT_ROOT_TOKEN
+
+# Enable Kubernetes Auth Method
+$ kubectl -n vault exec -it vault-0 -- vault auth enable kubernetes
+$ kubectl -n vault exec -it vault-0 -- vault write auth/kubernetes/config \
+    kubernetes_host=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
+Success! Data written to: auth/kubernetes/config
+
+# Clean up
+rm vault-keys.json
+```
+
+Next, configure auto-unseal and kubernetes auth method as per the main README.
+
+```bash
+
+```
+
 ## TL;DR
 
 ```bash

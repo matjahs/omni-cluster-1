@@ -5,11 +5,26 @@ set -e
 
 VAULT_ADDR="${VAULT_ADDR:-http://localhost:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:-}"
+GITHUB_REPO="${GH_REPO:-}"
+GITHUB_USERNAME="${GH_USER:-}"
+GITHUB_TOKEN="${GH_TOKEN:-}"
 
 if [ -z "$VAULT_TOKEN" ]; then
   echo "Error: VAULT_TOKEN environment variable is required"
   echo "Usage: VAULT_TOKEN=<token> ./04-populate-secrets.sh"
   exit 1
+fi
+
+if [ -z "$GITHUB_USERNAME" ] || [ -z "$GITHUB_TOKEN" ]; then
+  echo "Error: GITHUB_USERNAME and GITHUB_TOKEN environment variables are required"
+  echo "Usage: GITHUB_USERNAME=<username> GITHUB_TOKEN=<token> ./04-populate-secrets.sh"
+  exit 1
+fi
+
+# Enable KV v2 secrets engine if not already enabled
+if ! vault secrets list | grep -q '^secret/'; then
+  echo "Enabling KV v2 secrets engine at 'secret/'..."
+  vault secrets enable -path=secret -version=2 kv
 fi
 
 echo "==> Creating example secrets in Vault..."
@@ -25,9 +40,9 @@ vault kv put secret/argocd/server \
 
 echo "Creating ArgoCD repository credentials (example)..."
 vault kv put secret/argocd/repo \
-  url="https://github.com/yourorg/your-repo.git" \
-  username="git" \
-  password="your-token-here"
+  url="https://github.com/${GITHUB_REPO}.git" \
+  username="${GITHUB_USERNAME}" \
+  password="${GITHUB_TOKEN}"
 
 # Example app secrets
 echo "Creating example app database credentials..."

@@ -49,6 +49,38 @@ The configuration includes:
 
 ### Setup Steps
 
+### 0. Initialize vault operator
+
+```shell
+kubectl -n vault exec vault-0 -- vault operator init \
+ -key-shares=1 \
+ -key-threshold=1 \
+ -format=json > cluster-keys.json
+```
+Extract the unseal key
+```shell
+$ VAULT_UNSEAL_KEY=$(jq -r ".unseal_keys_b64[]" cluster-keys.json)
+$ kubectl -n vault exec vault-0  -- vault operator unseal $VAULT_UNSEAL_KEY
+Key             Value
+---             -----
+Seal Type       shamir
+Initialized     true
+Sealed          false
+Total Shares    1
+Threshold       1
+Version         1.17.2
+Build Date      2024-07-05T15:19:12Z
+Storage Type    file
+Cluster Name    vault-cluster-b7641186                                                                                                                                     Cluster ID      d9cc27b4-8dc4-5c00-a7e7-a854e3ae2f33
+HA Enabled      false
+```
+Now you can get a shell into the vault pod and login with the root token
+```shell
+$ kubectl -n vault exec --stdin=true --tty=true vault-0 -- /bin/sh
+/ $
+$ vault login <root-token-from-cluster-keys.json>
+````
+
 #### 1. Access Vault
 
 **Option A: Via Omni Workload Proxy**

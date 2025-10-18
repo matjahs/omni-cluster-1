@@ -33,3 +33,4 @@ output-*/
 .cache_ggshield
 /.idea/terraform.xml
 /.claude/settings.local.json
+/cluster-keys.json
