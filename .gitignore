@@ -31,3 +31,4 @@ output-*/
 
 # Cache for GitGuardian's ggshield pre-commit hook
 .cache_ggshield
+/.idea/terraform.xml

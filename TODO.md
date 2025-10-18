@@ -2,7 +2,7 @@
 
 ## Must Have
 
-- [ ] Add `external-secrets` operator (ESO)
+- [X] Add `external-secrets` operator (ESO)
 - [ ] Implement `kyverno` policies for security and compliance.
 - [ ] Write docs on multi-tenancy/namespace-as-a-service.
 - [ ] Kubernetes RBAC (maybe use Omni RBAC?)
