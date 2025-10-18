@@ -5,7 +5,12 @@
       "Bash(cat apps/cert-manager/values.yaml)",
       "Bash(tree -L 3 apps/)",
       "WebSearch",
-      "Bash(tree -L 3 apps/argocd/)"
+      "Bash(tree -L 3 apps/argocd/)",
+      "Bash(cat apps/cert-manager/cert-manager/values.yaml)",
+      "WebFetch(domain:developers.redhat.com)",
+      "Bash(tree -L 3 argocd/)",
+      "Bash(cat apps/kube-system/cilium/Chart.lock)",
+      "Bash(git add apps/kube-system/cilium/Chart.yaml apps/kube-system/cilium/l2-policy.yaml apps/kube-system/cilium/lb-pool.yaml apps/kube-system/cilium-config/)"
     ],
     "deny": [],
     "ask": []
