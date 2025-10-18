@@ -7,3 +7,13 @@ metadata:
     # Enable Omni Workload Proxying for this service
     omni-kube-service-exposer.sidero.dev/port: '50081'
     omni-kube-service-exposer.sidero.dev/label: ArgoCD
+spec:
+  selector:
+    "app.kubernetes.io/name": argocd-server
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+    - name: grpc
+      port: 80
+      targetPort: 9090
