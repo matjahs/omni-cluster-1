@@ -1,0 +1,43 @@
+# yaml-language-server
+---
+version: '3'
+
+tasks:
+  regenerate:
+    desc: Regenerate inline manifests
+    cmds:
+      - task: regenerate:cilium
+      - task: regenerate:external-secrets-operator
+  regenerate:cilium:
+    desc: Regenerate Cilium manifests
+    cmds:
+      - kustomize build apps/cilium/kube-system/cilium/overlays/default > apps/cilium/kube-system/cilium/inline-manifests/generated.yaml
+  regenerate:argocd:
+    desc: Regenerate ArgoCD manifests
+    cmds:
+      - kustomize build argocd/apps/argocd/argocd/overlays/default > argocd/apps/argocd/argocd/inline-manifests/generated.yaml
+  regenerate:external-secrets-operator:
+    desc: Regenerate External Secrets Operator manifests
+    cmds:
+      - kustomize build apps/external-secrets/external-secrets-operator/overlays/default > apps/external-secrets/external-secrets-operator/inline-manifests/generated.yaml
+
+  omni:talosconfig:
+    desc: Create talosconfig with admin access for Omni
+    cmds:
+      - talosctl config merge -f configs/talosconfig.yaml -f configs/talosconfig-omni-admin.yaml -o configs/talosconfig-omni.yaml
+  omni:kubeconfig:
+    desc: Create kubeconfig with Omni access
+    cmds:
+      - kubectl config view --raw --minify --flatten --context=omni-sidero > configs/kubeconfig-omni.yaml
+  omni:all:
+    desc: Create all Omni configs
+    cmds:
+      - task: omni:talosconfig
+      - task: omni:kubeconfig
+  argo:sync:
+    desc: Refresh repo server to pick up changes
+    cmds:
+      - kubectl -n argocd rollout restart deployment argocd-repo-server
+      - kubectl -n argocd wait --for=condition=available deployment/argocd-repo-server --timeout=60s
+      - kubectl -n argocd patch application argocd-argocd -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}' --type merge
+      - kubectl -n argocd patch application argocd-argocd -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD","prune":true}}}' --type merge
