@@ -32,6 +32,9 @@ longhorn:
     ui:
       type: ClusterIP
       nodePort:
+      annotations:
+        omni-kube-service-exposer.sidero.dev/port: '80'
+        omni-kube-service-exposer.sidero.dev/label: Longhorn
     manager:
       type: ClusterIP
       nodePort:
@@ -55,9 +58,6 @@ longhorn:
     tls: false
     tlsSecret: ''
     annotations: {}
-  serviceAnnotations:
-    omni-kube-service-exposer.sidero.dev/port: '80'
-    omni-kube-service-exposer.sidero.dev/label: Longhorn
 
   # Resource limits
   resources:
