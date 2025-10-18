@@ -91,6 +91,31 @@ spec:
           kind: ClusterSecretStore
           jsonPointers:
             - /status
+        # External Secrets CRDs & webhook CA bundle - dynamic status/certs
+        - group: apiextensions.k8s.io
+          kind: CustomResourceDefinition
+          name: externalsecrets.external-secrets.io
+          jsonPointers: [/status]
+        - group: apiextensions.k8s.io
+          kind: CustomResourceDefinition
+          name: secretstores.external-secrets.io
+          jsonPointers: [/status]
+        - group: apiextensions.k8s.io
+          kind: CustomResourceDefinition
+          name: clustersecretstores.external-secrets.io
+          jsonPointers: [/status]
+        - kind: MutatingWebhookConfiguration
+          name: external-secrets-webhook
+          jsonPointers: [/webhooks/0/clientConfig/caBundle]
+        - kind: ValidatingWebhookConfiguration
+          name: external-secrets-webhook
+          jsonPointers: [/webhooks/0/clientConfig/caBundle]
+        - kind: Secret
+          name: external-secrets-webhook-cert
+          jsonPointers:
+            - /data/ca.crt
+            - /data/tls.crt
+            - /data/tls.key
         # Cilium generated certs - these are dynamically generated
         - name: cilium-ca
           kind: Secret
