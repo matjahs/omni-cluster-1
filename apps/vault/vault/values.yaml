@@ -21,5 +21,8 @@ vault:
         omni-kube-service-exposer.sidero.dev/label: Vault
         omni-kube-service-exposer.sidero.dev/prefix: vault
         omni-kube-service-exposer.sidero.dev/port: '8200'
+  serviceAccount:
+    create: true
+    name: vault
   ui:
     enabled: true

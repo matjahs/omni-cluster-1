@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: vault
-version: 0.31.0
+version: 1.20.4
 description: A Helm chart for HashiCorp Vault
 type: application
 home: https://www.vaultproject.io/

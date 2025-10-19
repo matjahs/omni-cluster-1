@@ -1,0 +1,4 @@
+name: vault-secrets-operator
+syncWave: "0"
+namespace: vault
+appPath: apps/vault/vault-secrets-operator

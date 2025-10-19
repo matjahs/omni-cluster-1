@@ -41,3 +41,21 @@ tasks:
       - kubectl -n argocd wait --for=condition=available deployment/argocd-repo-server --timeout=60s
       - kubectl -n argocd patch application argocd-argocd -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}' --type merge
       - kubectl -n argocd patch application argocd-argocd -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD","prune":true}}}' --type merge
+
+  update:kube-prometheus-stack:
+    desc: Update kube-prometheus-stack to latest version
+    cmds:
+      - helm repo update
+      - cd apps/monitoring/kube-prometheus-stack && helm dependency update
+      - cd -
+  update:vault:
+    desc: Update Vault to latest version
+    cmds:
+      - helm repo update
+      - cd apps/vault/vault && helm dependency update
+      - cd -
+  update:all:
+    desc: Update all Helm chart dependencies
+    cmds:
+      - task: update:kube-prometheus-stack
+      - task: update:vault
