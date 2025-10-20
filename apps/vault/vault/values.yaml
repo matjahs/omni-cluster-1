@@ -17,7 +17,6 @@ vault:
             tls_disable = "true"
           }
           service_registration "kubernetes" {}
-      replicas: 3
     serviceAccount:
       create: true
   ui:
