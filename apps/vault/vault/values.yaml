@@ -1,26 +1,25 @@
 ---
 vault:
+  global:
+    tlsDisable: true
+  injector:
+    enabled: false
+  csi:
+    enabled: false
   server:
     ha:
+      enabled: false
+    standalone:
       enabled: true
-      raft:
-        enabled: true
-        setNodeId: true
-        config: |
-          cluster_name = "vault-integrated-storage"
-          storage "raft" {
-            path = "/vault/data/"
-          }
-          listener "tcp" {
-            address = "[::]:8200"
-            cluster_address = "[::]:8201"
-            tls_disable = "true"
-          }
-          service_registration "kubernetes" {}
-    serviceAccount:
-      create: true
+    dataStorage:
+      enabled: true
+      size: 10Gi
+    service:
+      type: ClusterIP
+      port: 8200
+      annotations:
+        omni-kube-service-exposer.sidero.dev/label: Vault
+        omni-kube-service-exposer.sidero.dev/prefix: vault
+        omni-kube-service-exposer.sidero.dev/port: '8200'
   ui:
     enabled: true
-    annotations:
-      omni-kube-service-exposer.sidero.dev/port: '8200'
-      omni-kube-service-exposer.sidero.dev/label: Vault
