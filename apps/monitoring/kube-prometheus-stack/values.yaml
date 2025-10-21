@@ -20,6 +20,19 @@ kube-prometheus-stack:
             resources:
               requests:
                 storage: 10Gi
+    config:
+      global:
+        smtp_smarthost: 'smtp.umcn.nl:25'
+        smtp_from: 'alertmanager@umcn.nl'
+        smtp_auth_username: ''
+        smtp_auth_password: ''
+      route:
+        receiver: 'team-email'
+      receivers:
+        - name: 'team-email'
+          email_configs:
+            - to: 'teamplatformengineering.im@radboudumc.nl'
+              send_resolved: true
   prometheus:
     prometheusSpec:
       storageSpec:
