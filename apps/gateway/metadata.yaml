@@ -1,0 +1,3 @@
+name: gateway
+namespace: kube-system
+appPath: apps/gateway

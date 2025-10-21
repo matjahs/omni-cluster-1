@@ -1,0 +1,3 @@
+name: argocd-httproute
+namespace: argocd
+appPath: apps/argocd/httproute

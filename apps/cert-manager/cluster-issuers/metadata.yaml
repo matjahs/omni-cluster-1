@@ -1,0 +1,3 @@
+name: cluster-issuers
+namespace: cert-manager
+appPath: apps/cert-manager/cluster-issuers
