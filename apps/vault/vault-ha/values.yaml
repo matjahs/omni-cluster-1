@@ -12,25 +12,40 @@ vault:
     # externalVaultAddr: "https://vault.your.domain:8200"
 
   server:
+    # AWS credentials for KMS auto-unseal
+    extraSecretEnvironmentVars:
+      - envName: AWS_ACCESS_KEY_ID
+        secretName: vault-kms-creds
+        secretKey: access_key
+      - envName: AWS_SECRET_ACCESS_KEY
+        secretName: vault-kms-creds
+        secretKey: secret_key
+
     # StatefulSet with Raft integrated storage, 3 pods + headless Service.
     ha:
       enabled: true
       replicas: 3
       raft:
         enabled: true
-        # Let the chart render a sane Raft config and join peers automatically.
-        # You can still override the full config if you want:
-        # config: |
-        #   ui = true
-        #   storage "raft" {
-        #     path = "/vault/data"
-        #   }
-        #   listener "tcp" {
-        #     address         = "0.0.0.0:8200"
-        #     cluster_address = "0.0.0.0:8201"
-        #     tls_disable     = 1
-        #   }
-        #   service_registration "kubernetes" {}
+        config: |
+          ui = true
+
+          listener "tcp" {
+            address         = "0.0.0.0:8200"
+            cluster_address = "0.0.0.0:8201"
+            tls_disable     = 1
+          }
+
+          storage "raft" {
+            path = "/vault/data"
+          }
+
+          seal "awskms" {
+            region     = "eu-central-1"
+            kms_key_id = "ba4a546a-bcd3-49e6-8a41-5ed55a3e407c"
+          }
+
+          service_registration "kubernetes" {}
 
     # Persistent storage (adjust for your storage class/size).
     dataStorage:
