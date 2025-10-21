@@ -1,0 +1,84 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-bootstrap
+  namespace: vault
+spec:
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        app: vault-bootstrap
+    spec:
+      serviceAccountName: vault-auth
+      restartPolicy: OnFailure
+      containers:
+        - name: bootstrap
+          image: hashicorp/vault:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: "http://vault.vault.svc:8200"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: "vault-root"
+                  key: "token"
+            - name: APP_NAMESPACE
+              value: "apps"
+            - name: APP_SERVICE_ACCOUNT
+              value: "app-sa"
+            - name: VAULT_K8S_AUTH_PATH
+              value: "kubernetes"
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+
+              echo ">> Waiting for Vault to be ready..."
+              # Wait until active leader responds OK (200). Standby returns 429; we prefer 200.
+              for i in $(seq 1 120); do
+                if vault status >/dev/null 2>&1; then
+                  if [ "$(vault status -format=json | jq -r '.sealed')" = "false" ] && \
+                     [ "$(vault status -format=json | jq -r '.ha_enabled')" = "true" ]; then
+                    break
+                  fi
+                fi
+                sleep 5
+              done
+              echo ">> Vault status:"
+              vault status || true
+
+              echo ">> Ensure kubernetes auth is enabled at path: ${VAULT_K8S_AUTH_PATH}"
+              if ! vault auth list -format=json | jq -e --arg p "${VAULT_K8S_AUTH_PATH}/" 'has($p)' >/dev/null; then
+                vault auth enable -path="${VAULT_K8S_AUTH_PATH}" kubernetes
+              fi
+
+              # Kubernetes API & CA inside the cluster
+              KUBE_HOST="https://kubernetes.default.svc:443"
+              KUBE_CA="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              REVIEWER_JWT="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+
+              echo ">> Configure auth/${VAULT_K8S_AUTH_PATH}/config"
+              vault write "auth/${VAULT_K8S_AUTH_PATH}/config" \
+                kubernetes_host="${KUBE_HOST}" \
+                kubernetes_ca_cert=@"${KUBE_CA}" \
+                token_reviewer_jwt="${REVIEWER_JWT}"
+
+              echo ">> Create (or update) example policy: app-policy"
+              cat >/tmp/app-policy.hcl <<'HCL'
+              path "secret/data/app/config" {
+                capabilities = ["read"]
+              }
+              HCL
+              vault policy write app-policy /tmp/app-policy.hcl || vault policy write app-policy /tmp/app-policy.hcl
+
+              echo ">> Create (or update) example role: app"
+              vault write "auth/${VAULT_K8S_AUTH_PATH}/role/app" \
+                bound_service_account_names="${APP_SERVICE_ACCOUNT}" \
+                bound_service_account_namespaces="${APP_NAMESPACE}" \
+                policies="app-policy" \
+                ttl="1h" || true
+
+              echo ">> Done."

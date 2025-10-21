@@ -1,17 +1,10 @@
----
 apiVersion: v2
 name: vault
 version: 0.31.0
 description: A Helm chart for HashiCorp Vault
 type: application
 home: https://www.vaultproject.io/
-icon: https://www.vaultproject.io/assets/images/vault-logo-512.png
-keywords:
-  - vault
-  - hashicorp
-  - secrets
-  - certificates
-  - identity
+icon: https://github.com/hashicorp/vault/raw/main/website/public/img/logo.svg
 dependencies:
   - name: vault
     version: 0.31.0

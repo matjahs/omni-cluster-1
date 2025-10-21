@@ -1,0 +1,77 @@
+---
+vault:
+  global:
+    # Fast start: disable TLS for the cluster-internal service.
+    # For prod, set this false and configure real certs below.
+    tlsDisable: true
+
+  injector:
+    enabled: true
+    # If you run Vault in this same release, leave external addr empty.
+    # If Vault is external, set this instead:
+    # externalVaultAddr: "https://vault.your.domain:8200"
+
+  server:
+    # StatefulSet with Raft integrated storage, 3 pods + headless Service.
+    ha:
+      enabled: true
+      replicas: 3
+      raft:
+        enabled: true
+        # Let the chart render a sane Raft config and join peers automatically.
+        # You can still override the full config if you want:
+        # config: |
+        #   ui = true
+        #   storage "raft" {
+        #     path = "/vault/data"
+        #   }
+        #   listener "tcp" {
+        #     address         = "0.0.0.0:8200"
+        #     cluster_address = "0.0.0.0:8201"
+        #     tls_disable     = 1
+        #   }
+        #   service_registration "kubernetes" {}
+
+    # Persistent storage (adjust for your storage class/size).
+    dataStorage:
+      enabled: true
+      size: 10Gi
+      storageClass: "" # e.g., "gp3", "standard", etc.
+
+    # Expose a ClusterIP; add Ingress if you need external access.
+    service:
+      type: ClusterIP
+
+    # Example readiness/liveness tweaks (optional):
+    readinessProbe:
+      enabled: true
+    livenessProbe:
+      enabled: true
+
+    # -- BEGIN: Production knobs (uncomment + configure) --
+    # Set to false above, then provide real TLS and auto-unseal:
+    # extraEnvironmentVars:
+    #   VAULT_CACERT: /vault/userconfig/tls/ca.crt
+    # extraVolumes:
+    #   - type: secret
+    #     name: vault-tls
+    #     path: /vault/userconfig/tls
+    #   - type: secret
+    #     name: kms-creds # if your KMS needs creds on disk
+    # ha:
+    #   raft:
+    #     config: |
+    #       ui = true
+    #       storage "raft" { path = "/vault/data" }
+    #       listener "tcp" {
+    #         address         = "0.0.0.0:8200"
+    #         cluster_address = "0.0.0.0:8201"
+    #         tls_cert_file   = "/vault/userconfig/tls/tls.crt"
+    #         tls_key_file    = "/vault/userconfig/tls/tls.key"
+    #       }
+    #       seal "awskms" {
+    #         region     = "eu-west-1"
+    #         kms_key_id = "<your-kms-key-id>"
+    #       }
+    #       service_registration "kubernetes" {}
+    # -- END: Production knobs --

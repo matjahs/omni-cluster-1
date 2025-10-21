@@ -1,0 +1,4 @@
+name: longhorn-config
+syncWave: "0"
+namespace: longhorn-system
+appPath: apps/longhorn-system/longhorn-config

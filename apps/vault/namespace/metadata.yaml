@@ -1,4 +1,0 @@
-name: vault-namespace
-syncWave: "-2"
-namespace: vault
-appPath: apps/vault/namespace
