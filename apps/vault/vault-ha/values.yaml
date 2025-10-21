@@ -45,8 +45,11 @@ vault:
     # Example readiness/liveness tweaks (optional):
     readinessProbe:
       enabled: true
+      failureThreshold: 10
     livenessProbe:
       enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 60
 
     # -- BEGIN: Production knobs (uncomment + configure) --
     # Set to false above, then provide real TLS and auto-unseal:

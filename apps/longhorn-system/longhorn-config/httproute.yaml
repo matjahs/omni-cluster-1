@@ -8,3 +8,9 @@ spec:
     - name: longhorn-frontend
   rules:
     - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: longhorn-frontend
+          port: 80
