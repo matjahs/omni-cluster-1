@@ -1,4 +1,0 @@
-name: vault-bootstrap
-syncWave: "0"
-namespace: vault
-appPath: apps/vault/vault-bootstrap
