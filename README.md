@@ -73,6 +73,21 @@ This setup makes use of the [Omni Workload Proxy](https://omni.siderolabs.com/ho
 which allows access to the HTTP front end services *without* the need of a separate external Ingress Controller or LoadBalancer.
 Additionally, it leverages Omni's built-in authentication to protect the services, even those services that don't support authentication themselves.
 
+## GitOps Endpoints
+
+ArgoCD is exposed through both the Cilium Gateway API and a classic Ingress for flexibility:
+
+- `apps/gateway/` creates a `Gateway` that terminates TLS for `*.local` hostnames using a certificate issued by cert-manager.
+- `apps/argocd/httproute/` adds an `HTTPRoute`, matching `argocd.local` and forwarding to the `argocd-server` service. A fallback Kubernetes `Ingress` and per-app `Certificate` are included for environments that do not yet handle Gateway API traffic.
+
+To trust the self-signed CA produced by cert-manager, export it from the cluster:
+
+```bash
+kubectl get secret selfsigned-ca-secret -n cert-manager -o jsonpath='{.data.ca\.crt}' | base64 -d > omni-local-ca.crt
+```
+
+Then import `omni-local-ca.crt` into your workstation trust store and map `argocd.local` to the Omni workload proxy endpoint (or `127.0.0.1` when using port-forwarding). The Gateway listener name is `https`, so additional HTTPRoutes can target the same entrypoint by referencing `parentRefs.sectionName: https`.
+
 ## Storage Configuration
 
 This cluster uses Longhorn for persistent storage.
@@ -128,7 +143,7 @@ ArgoCD is configured to use this repository at `https://github.com/matjahs/omni-
 To modify applications:
 1. Make changes to the Helm charts or manifests in the `apps` directory
 2. Update the ArgoCD repository URL in [bootstrap-app-set.yaml](apps/argocd/argocd/bootstrap-app-set.yaml) if you fork this repository
-3. Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](bootstrap/talos/patches/20-argocd.yaml) (instructions can be found at the top of that file)
+3. ~~Regenerate the ArgoCD bootstrap cluster manifest patch [argocd.yaml](bootstrap/talos/patches/20-argocd.yaml) (instructions can be found at the top of that file)~~
 4. Commit and push changes to your repository
 5. Sync the cluster template with Omni as described above
 

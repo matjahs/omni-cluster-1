@@ -34,3 +34,4 @@ output-*/
 /.idea/terraform.xml
 /.claude/settings.local.json
 /cluster-keys.json
+/.idea/php.xml

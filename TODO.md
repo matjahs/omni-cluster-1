@@ -13,11 +13,11 @@
 ## Should Have
 
 - [ ] Set up monitoring and alerting for the cluster.
-- [ ] Cilium ingress (use `HttpRoute`?).
+- [X] Cilium ingress (Gateway API + HTTPRoute for ArgoCD).
 - [ ] Move secrets to Vault and integrate with ESO.
 - [ ] Document cluster architecture and configurations.
-- [ ] App that demo's using a containerized Microsoft SQL Server.
-- [ ] App that demo's using PostgreSQL.
+- [X] App that demo's using a containerized Microsoft SQL Server. (tenants/team-b/app/mssql.yaml)
+- [X] App that demo's using PostgreSQL. (tenants/team-a/app/postgres.yaml)
 
 ## Could Have
 

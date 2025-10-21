@@ -8,6 +8,7 @@ spec:
   parentRefs:
     - name: cilium-gateway
       namespace: kube-system
+      sectionName: https
   hostnames:
     - "argocd.local"
   rules:

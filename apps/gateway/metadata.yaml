@@ -1,3 +1,4 @@
 name: gateway
 namespace: kube-system
+syncWave: "1"
 appPath: apps/gateway

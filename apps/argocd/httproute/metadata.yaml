@@ -1,3 +1,4 @@
 name: argocd-httproute
 namespace: argocd
+syncWave: "2"
 appPath: apps/argocd/httproute
