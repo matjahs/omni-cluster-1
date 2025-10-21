@@ -4,12 +4,15 @@ vault:
     # Fast start: disable TLS for the cluster-internal service.
     # For prod, set this false and configure real certs below.
     tlsDisable: true
+    namespace: vault
+    serverTelemetry:
+      prometheusOperator: true
 
   injector:
     enabled: true
-    # If you run Vault in this same release, leave external addr empty.
-    # If Vault is external, set this instead:
-    # externalVaultAddr: "https://vault.your.domain:8200"
+    externalVaultAddr: ""
+    metrics:
+      enabled: false
 
   server:
     # AWS credentials for KMS auto-unseal
@@ -51,7 +54,7 @@ vault:
     dataStorage:
       enabled: true
       size: 10Gi
-      storageClass: "" # e.g., "gp3", "standard", etc.
+      storageClass: "longhorn-static"
 
     # Expose a ClusterIP; add Ingress if you need external access.
     service:
