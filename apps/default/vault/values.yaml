@@ -1,0 +1,59 @@
+global:
+  enabled: true
+  tlsDisable: false
+
+injector:
+  enabled: true
+  image:
+    repository: "hashicorp/vault-k8s"
+    tag: "latest"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+server:
+  image:
+    repository: "hashicorp/vault-enterprise"
+    tag: "latest"
+  resources:
+    requests:
+      cpu: "2000m"
+      memory: "8Gi"
+    limits:
+      cpu: "2000m"
+      memory: "16Gi"
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 60
+
+ha:
+  enabled: true
+  replicas: 3
+  raft:
+    enabled: true
+    setNodeId: true
+    config: |
+      disable_mlock = true
+      ui = true
+      listener "tcp" {
+      tls_disable = 1
+      address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+      storage "file" {
+        path = "/vault/data"
+      }
+
+ui:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 8200
