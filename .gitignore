@@ -35,3 +35,5 @@ output-*/
 /.claude/settings.local.json
 /cluster-keys.json
 /.idea/php.xml
+/apps/default/vault/keys.json
+/.idea/

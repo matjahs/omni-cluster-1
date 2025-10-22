@@ -1,0 +1,4 @@
+name: vault
+syncWave: "0"
+namespace: default
+appPath: apps/default/vault
