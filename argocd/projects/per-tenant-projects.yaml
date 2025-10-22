@@ -1,0 +1,100 @@
+---
+# Team A Project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-a
+  namespace: argocd
+spec:
+  description: AppProject for team-a tenant
+  sourceRepos:
+    - 'https://github.com/matjahs/omni-cluster-1.git'
+    - 'https://charts.bitnami.com/bitnami'
+    - 'https://*.github.io/*'
+
+  destinations:
+    - namespace: 'team-a'
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  roles:
+    - name: admin
+      description: Admin access to team-a applications
+      policies:
+        - p, proj:team-a:admin, applications, *, team-a/*, allow
+        - p, proj:team-a:admin, logs, get, team-a/*, allow
+      groups:
+        - team-a-admins
+        - platform-admins
+
+    - name: developer
+      description: Developer access to team-a
+      policies:
+        - p, proj:team-a:developer, applications, get, team-a/*, allow
+        - p, proj:team-a:developer, applications, sync, team-a/*, allow
+        - p, proj:team-a:developer, logs, get, team-a/*, allow
+      groups:
+        - team-a-developers
+
+    - name: viewer
+      description: View-only access to team-a
+      policies:
+        - p, proj:team-a:viewer, applications, get, team-a/*, allow
+      groups:
+        - team-a-viewers
+
+  orphanedResources:
+    warn: true
+
+---
+# Team B Project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-b
+  namespace: argocd
+spec:
+  description: AppProject for team-b tenant
+  sourceRepos:
+    - 'https://github.com/matjahs/omni-cluster-1.git'
+    - 'https://charts.bitnami.com/bitnami'
+    - 'https://*.github.io/*'
+
+  destinations:
+    - namespace: 'team-b'
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  roles:
+    - name: admin
+      policies:
+        - p, proj:team-b:admin, applications, *, team-b/*, allow
+        - p, proj:team-b:admin, logs, get, team-b/*, allow
+      groups:
+        - team-b-admins
+        - platform-admins
+
+    - name: developer
+      policies:
+        - p, proj:team-b:developer, applications, get, team-b/*, allow
+        - p, proj:team-b:developer, applications, sync, team-b/*, allow
+        - p, proj:team-b:developer, logs, get, team-b/*, allow
+      groups:
+        - team-b-developers
+
+    - name: viewer
+      policies:
+        - p, proj:team-b:viewer, applications, get, team-b/*, allow
+      groups:
+        - team-b-viewers
+
+  orphanedResources:
+    warn: true

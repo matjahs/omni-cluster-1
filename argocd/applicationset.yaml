@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: applications
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: cilium
+          - name: vault
+          - name: longhorn
+          - name: kube-prometheus-stack
+            namespace: monitoring
+            serverSideApply: true
+          - name: external-secrets
+            serverSideApply: true
+  template:
+    metadata:
+      name: "{{ .name }}"
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: "."
+        notifications.argoproj.io/subscribe.on-sync-succeeded.telegram: "-1001726711150"
+        argocd.argoproj.io/compare-options: '{{ printf "%s=%s" "ServerSideDiff" (dig "serverSideDiff" "false" . | toString) }}'
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:matjahs/omni-cluster-1.git
+        targetRevision: HEAD
+        path: "apps/{{ .namespace }}/{{ .name }}"
+      destination:
+        name: in-cluster
+        namespace: '{{ default .namespace (dig "namespace" "" .) }}'
+      ignoreDifferences:
+        - group: apiextension.k8s.io
+          kind: CustomResourceDefinition
+          jqPathExpressions:
+            - .spec.conversion.webhook.clientConfig.caBundle
+        - group: apps
+          kind: "*"
+          jqPathExpressions:
+            - .spec.template.spec.hostUsers
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - RespectIgnoreDifferences=true
+          - '{{ printf "%s=%s" "ServerSideApply" (dig "serverSideApply" "false" . | toString }}'

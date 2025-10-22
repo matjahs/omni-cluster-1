@@ -1,0 +1,140 @@
+---
+# Kubernetes RBAC for team-a namespace
+# This provides namespace-level access control
+
+# ============================================
+# Admin Role - Full namespace access
+# ============================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-a-admin
+  namespace: team-a
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-admin-binding
+  namespace: team-a
+subjects:
+  # OIDC Group (if K8s API server is configured for OIDC)
+  - kind: Group
+    name: team-a-admins
+    apiGroup: rbac.authorization.k8s.io
+  # Platform admins also get access
+  - kind: Group
+    name: platform-admins
+    apiGroup: rbac.authorization.k8s.io
+  # Service account for CI/CD
+  - kind: ServiceAccount
+    name: team-a-ci
+    namespace: team-a
+roleRef:
+  kind: Role
+  name: team-a-admin
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ============================================
+# Developer Role - Deploy and debug access
+# ============================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-a-developer
+  namespace: team-a
+rules:
+  # Read/write most resources
+  - apiGroups: ["", "apps", "batch", "networking.k8s.io", "autoscaling"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  # Pod logs and exec
+  - apiGroups: [""]
+    resources: ["pods/log", "pods/portforward"]
+    verbs: ["get", "list"]
+
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+  # Cannot delete namespace or modify RBAC
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-developer-binding
+  namespace: team-a
+subjects:
+  - kind: Group
+    name: team-a-developers
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: team-a-developer
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ============================================
+# Viewer Role - Read-only access
+# ============================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-a-viewer
+  namespace: team-a
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+
+  # Pod logs
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-viewer-binding
+  namespace: team-a
+subjects:
+  - kind: Group
+    name: team-a-viewers
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: team-a-viewer
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ============================================
+# Service Account for CI/CD
+# ============================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-a-ci
+  namespace: team-a
+automountServiceAccountToken: false
+
+---
+# Secret for CI/CD service account token (for external access)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: team-a-ci-token
+  namespace: team-a
+  annotations:
+    kubernetes.io/service-account.name: team-a-ci
+type: kubernetes.io/service-account-token

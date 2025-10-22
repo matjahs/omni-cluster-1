@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/matjahs/omni-cluster-1.git
+    targetRevision: main
+    path: apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=Foreground
+      - ApplyOutOfSyncOnly=true

@@ -1,0 +1,56 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-a
+  namespace: argocd
+spec:
+  description: AppProject for team-a tenant
+
+  sourceRepos:
+    - 'https://github.com/matjahs/omni-cluster-1.git'
+    - 'https://charts.bitnami.com/bitnami'
+    - 'https://*.github.io/*'
+
+  destinations:
+    - namespace: 'team-a'
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist: []
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  roles:
+    - name: admin
+      description: Admin role for team-a
+      policies:
+        - p, proj:team-a:admin, applications, *, team-a/*, allow
+        - p, proj:team-a:admin, repositories, *, team-a/*, allow
+        - p, proj:team-a:admin, clusters, get, *, allow
+        - p, proj:team-a:admin, exec, create, team-a/*, allow
+      groups:
+        - team-a-admins
+        - platform-admins
+
+    - name: developer
+      description: Developer role for team-a
+      policies:
+        - p, proj:team-a:developer, applications, get, team-a/*, allow
+        - p, proj:team-a:developer, applications, sync, team-a/*, allow
+        - p, proj:team-a:developer, applications, override, team-a/*, allow
+        - p, proj:team-a:developer, logs, get, team-a/*, allow
+      groups:
+        - team-a-developers
+
+    - name: viewer
+      description: View-only role for team-a
+      policies:
+        - p, proj:team-a:viewer, applications, get, team-a/*, allow
+        - p, proj:team-a:viewer, logs, get, team-a/*, allow
+      groups:
+        - team-a-viewers
+
+  orphanedResources:
+    warn: true

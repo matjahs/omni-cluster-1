@@ -1,0 +1,56 @@
+---
+# Example SSO configuration for Generic OIDC (Keycloak, Okta, Auth0, etc.)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  url: https://argocd.lab.mxe11.nl
+
+  application.resourceTrackingMethod: annotation
+
+  # Generic OIDC configuration
+  # Example for Keycloak:
+  oidc.config: |
+    name: Corporate SSO
+    issuer: https://keycloak.example.com/realms/kubernetes
+    clientID: $oidc.keycloak.clientId
+    clientSecret: $oidc.keycloak.clientSecret
+    requestedScopes:
+      - openid
+      - profile
+      - email
+      - groups
+    # Optional: Custom group claim name
+    claimName: groups
+    # Optional: Custom username claim
+    usernameClaim: preferred_username
+
+  dex.config: ""
+  admin.enabled: "true"
+
+---
+# External Secret for generic OIDC
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: argocd-oidc-generic
+  namespace: argocd
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: vault-cluster-store
+  target:
+    name: argocd-secret
+    creationPolicy: Merge
+  data:
+    - secretKey: oidc.keycloak.clientId
+      remoteRef:
+        key: argocd/oidc-generic
+        property: clientId
+    - secretKey: oidc.keycloak.clientSecret
+      remoteRef:
+        key: argocd/oidc-generic
+        property: clientSecret
