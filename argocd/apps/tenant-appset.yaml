@@ -18,7 +18,7 @@ spec:
         # noinspection KubernetesUnknownValues
         tenant: '{{path.basename}}'
     spec:
-      project: tenants
+      project: '{{path.basename}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'

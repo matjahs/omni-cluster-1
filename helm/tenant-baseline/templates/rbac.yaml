@@ -1,9 +1,10 @@
 ---
 {{- if .Values.rbac.enabled }}
+# Admin Role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tenant-admin
+  name: {{ .Values.tenantName }}-admin
   namespace: {{ .Values.tenantName }}
 rules:
   - apiGroups: ["*"]
@@ -13,7 +14,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tenant-admin-binding
+  name: {{ .Values.tenantName }}-admin-binding
   namespace: {{ .Values.tenantName }}
 subjects:
 {{- range .Values.rbac.adminGroups }}
@@ -23,6 +24,78 @@ subjects:
 {{- end }}
 roleRef:
   kind: Role
-  name: tenant-admin
+  name: {{ .Values.tenantName }}-admin
   apiGroup: rbac.authorization.k8s.io
+
+{{- if .Values.rbac.developerGroups }}
+# Developer Role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.tenantName }}-developer
+  namespace: {{ .Values.tenantName }}
+rules:
+  - apiGroups: ["", "apps", "batch", "networking.k8s.io", "autoscaling"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log", "pods/portforward"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.tenantName }}-developer-binding
+  namespace: {{ .Values.tenantName }}
+subjects:
+{{- range .Values.rbac.developerGroups }}
+  - kind: Group
+    name: {{ . | quote }}
+    apiGroup: rbac.authorization.k8s.io
+{{- end }}
+roleRef:
+  kind: Role
+  name: {{ .Values.tenantName }}-developer
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+
+{{- if .Values.rbac.viewerGroups }}
+# Viewer Role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.tenantName }}-viewer
+  namespace: {{ .Values.tenantName }}
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.tenantName }}-viewer-binding
+  namespace: {{ .Values.tenantName }}
+subjects:
+{{- range .Values.rbac.viewerGroups }}
+  - kind: Group
+    name: {{ . | quote }}
+    apiGroup: rbac.authorization.k8s.io
+{{- end }}
+roleRef:
+  kind: Role
+  name: {{ .Values.tenantName }}-viewer
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
 {{- end }}

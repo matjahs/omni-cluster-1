@@ -4,6 +4,10 @@ rbac:
   adminGroups:
     - oidc:github:org:platform-admins
     - oidc:github:org:team-b-admins
+  developerGroups:
+    - oidc:github:org:team-b-developers
+  viewerGroups:
+    - oidc:github:org:team-b-viewers
 resourceQuota:
   hard:
     requests.cpu: '4'

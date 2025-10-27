@@ -1,12 +1,23 @@
 ---
 tenantName: ''  # REQUIRED per-tenant via values file
+
 labels:
   enabled: true
   extra: {}
+
+# ============================================
+# RBAC Configuration
+# ============================================
 rbac:
   enabled: true
-  adminGroups: [tenant-admins]  # override per tenant
-  additionalRoleBindings: []  # [{name, kind, subjectName, roleName}]
+  adminGroups: [tenant-admins]
+  developerGroups: []  # NEW: Developer access
+  viewerGroups: []     # NEW: Read-only access
+  additionalRoleBindings: []
+
+# ============================================
+# Resource Quotas
+# ============================================
 resourceQuota:
   enabled: true
   hard:
@@ -16,6 +27,10 @@ resourceQuota:
     limits.memory: 8Gi
     pods: '25'
     services: '10'
+
+# ============================================
+# Limit Ranges
+# ============================================
 limitRange:
   enabled: true
   default:
@@ -24,15 +39,63 @@ limitRange:
   defaultRequest:
     cpu: 200m
     memory: 256Mi
+
+# ============================================
+# Network Policies (Cilium)
+# ============================================
 networkPolicy:
-  defaultDenyAll: true
-  allowSameNamespace: true
-  extra: []  # raw manifests or additional rules via tpl
+  enabled: true
+
+  # Core platform services
+  allowVault: true          # Access to Vault
+  allowMonitoring: true     # Prometheus scraping
+  allowIngress: true        # Cilium Gateway/Ingress
+
+  # External access
+  allowExternal: true       # External HTTPS
+  allowExternalHTTP: false  # External HTTP (default false for security)
+  allowExternalDB: false    # Database access
+
+  # Database types (if allowExternalDB: true)
+  allowedDatabases: []      # Options: postgres, mysql, mongodb, redis, mssql
+
+  # Ingress pod selector
+  ingressPodLabels: {}      # Labels for pods that should accept ingress
+    # Example:
+    # network/ingress: "true"
+
+  # Cross-tenant isolation
+  otherTenantNamespaces: []  # List of other tenant namespaces to explicitly deny
+    # This will be populated automatically by a script or manually
+    # Example: [team-b, team-c]
+
+  # Custom Cilium policies
+  customCiliumPolicies: []
+
+# ============================================
+# Pod Security Standards
+# ============================================
 podSecurity:
   enabled: true
   level: baseline  # {restricted|baseline|privileged}
+
+# ============================================
+# Service Account
+# ============================================
 serviceAccount:
   enabled: false
   name: default
+
+# ============================================
+# Vault Integration
+# ============================================
+vault:
+  enabled: false
+  secretStoreName: vault-tenant
+  vaultRole: ""  # Defaults to tenantName if empty
+
+# ============================================
+# Extras (ConfigMaps, etc.)
+# ============================================
 extras:
   config: {}
