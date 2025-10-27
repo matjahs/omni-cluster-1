@@ -1,0 +1,396 @@
+---
+{{- if .Values.networkPolicy.enabled }}
+
+# ============================================
+# 1. Default Deny All (Cilium Native)
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Default deny all ingress and egress for tenant {{ .Values.tenantName }}"
+  endpointSelector: {}
+  # Empty ingress/egress = deny all
+
+---
+# ============================================
+# 2. Allow Same Namespace Communication
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-same-namespace
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow communication within {{ .Values.tenantName }} namespace"
+  endpointSelector: {}
+
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.tenantName }}
+
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.tenantName }}
+
+---
+# ============================================
+# 3. Allow DNS (CoreDNS)
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow DNS queries to CoreDNS"
+  endpointSelector: {}
+
+  egress:
+    # Allow DNS to CoreDNS
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchPattern: "*"
+
+    # Also allow Cilium coredns
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: cilium
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+
+---
+# ============================================
+# 4. Allow Kubernetes API Server
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-kube-apiserver
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow access to Kubernetes API server"
+  endpointSelector: {}
+
+  egress:
+    # Allow to kube-apiserver
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "6443"
+              protocol: TCP
+
+{{- if .Values.networkPolicy.allowVault }}
+---
+# ============================================
+# 5. Allow Vault Access
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-vault
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow access to Vault for secrets"
+  endpointSelector: {}
+
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vault
+            app.kubernetes.io/name: vault
+      toPorts:
+        - ports:
+            - port: "8200"
+              protocol: TCP
+            - port: "8201"
+              protocol: TCP
+{{- end }}
+
+{{- if .Values.networkPolicy.allowMonitoring }}
+---
+# ============================================
+# 6. Allow Prometheus Metrics Scraping
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow Prometheus to scrape metrics"
+  endpointSelector:
+    matchExpressions:
+      - key: app
+        operator: Exists
+
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+            - port: "9090"
+              protocol: TCP
+            - port: "3000"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+                path: "/metrics"
+{{- end }}
+
+{{- if .Values.networkPolicy.allowIngress }}
+---
+# ============================================
+# 7. Allow Ingress from Cilium Gateway
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-ingress-gateway
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow ingress from Cilium Gateway"
+  endpointSelector:
+    {{- if .Values.networkPolicy.ingressPodLabels }}
+    matchLabels:
+      {{- .Values.networkPolicy.ingressPodLabels | toYaml | nindent 6 }}
+    {{- else }}
+    matchExpressions:
+      - key: app
+        operator: Exists
+    {{- end }}
+
+  ingress:
+    # Allow from Cilium Ingress/Gateway
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: cilium
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+
+    # Also allow from cilium-envoy
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: cilium-envoy
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+{{- end }}
+
+{{- if .Values.networkPolicy.allowExternal }}
+---
+# ============================================
+# 8. Allow External HTTPS Egress (Layer 7)
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-external-https
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow HTTPS egress to external services"
+  endpointSelector: {}
+
+  egress:
+    # Allow HTTPS to external world
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+              - method: "POST"
+              - method: "PUT"
+              - method: "PATCH"
+              - method: "DELETE"
+              - method: "HEAD"
+
+    {{- if .Values.networkPolicy.allowExternalHTTP }}
+    # Allow HTTP to external world (if enabled)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+              - method: "POST"
+    {{- end }}
+{{- end }}
+
+{{- if .Values.networkPolicy.allowExternalDB }}
+---
+# ============================================
+# 9. Allow External Database Access
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-external-database
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Allow access to external databases"
+  endpointSelector: {}
+
+  egress:
+    # PostgreSQL
+    {{- if has "postgres" .Values.networkPolicy.allowedDatabases }}
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    {{- end }}
+
+    # MySQL/MariaDB
+    {{- if has "mysql" .Values.networkPolicy.allowedDatabases }}
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "3306"
+              protocol: TCP
+    {{- end }}
+
+    # MongoDB
+    {{- if has "mongodb" .Values.networkPolicy.allowedDatabases }}
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "27017"
+              protocol: TCP
+    {{- end }}
+
+    # Redis
+    {{- if has "redis" .Values.networkPolicy.allowedDatabases }}
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    {{- end }}
+
+    # SQL Server
+    {{- if has "mssql" .Values.networkPolicy.allowedDatabases }}
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "1433"
+              protocol: TCP
+    {{- end }}
+{{- end }}
+
+---
+# ============================================
+# 10. Deny Cross-Tenant Traffic (Explicit)
+# ============================================
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: deny-cross-tenant
+  namespace: {{ .Values.tenantName }}
+  labels:
+    {{- include "tenant.labels" . | nindent 4 }}
+spec:
+  description: "Explicitly deny traffic to/from other tenant namespaces"
+  endpointSelector: {}
+
+  ingressDeny:
+    # Deny from all tenant namespaces
+    - fromEndpoints:
+        - matchExpressions:
+            - key: k8s:io.kubernetes.pod.namespace
+              operator: In
+              values:
+                {{- range .Values.networkPolicy.otherTenantNamespaces }}
+                - {{ . }}
+                {{- end }}
+
+  egressDeny:
+    # Deny to all tenant namespaces
+    - toEndpoints:
+        - matchExpressions:
+            - key: k8s:io.kubernetes.pod.namespace
+              operator: In
+              values:
+                {{- range .Values.networkPolicy.otherTenantNamespaces }}
+                - {{ . }}
+                {{- end }}
+
+{{- range .Values.networkPolicy.customCiliumPolicies }}
+---
+# ============================================
+# Custom CiliumNetworkPolicy: {{ .metadata.name }}
+# ============================================
+{{ . | toYaml }}
+{{- end }}
+
+{{- end }}

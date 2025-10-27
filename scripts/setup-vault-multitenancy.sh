@@ -4,12 +4,24 @@
 
 set -e
 
+cleanup() {
+  echo "An error occurred in script: ${BASH_SOURCE[0]} on line: $1 with exit code: $?. Exiting."
+  exit 1
+}
+trap 'cleanup $LINENO' ERR
+
 VAULT_POD="vault-dev-0"
 VAULT_NAMESPACE="vault"
 
 echo "===================================="
 echo "Setting up Vault Multi-tenancy"
 echo "===================================="
+
+# Check if Vault is accessible
+if ! kubectl exec -n ${VAULT_NAMESPACE} ${VAULT_POD} -- vault status >/dev/null 2>&1; then
+  echo "Error: Cannot connect to Vault. Please ensure Vault is running and accessible."
+  exit 1
+fi
 
 # Get list of tenants from directory structure
 TENANTS=$(find tenants -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 basename)
@@ -21,7 +33,10 @@ for TENANT in ${TENANTS}; do
 
   # Create Vault policy for this tenant
   echo "Creating Vault policy: ${TENANT}-policy"
-  kubectl exec -n ${VAULT_NAMESPACE} ${VAULT_POD} -- vault policy write "${TENANT}"-policy - <<EOF
+
+  # Create policy file
+  POLICY_FILE="/tmp/${TENANT}-policy.hcl"
+  cat > "$POLICY_FILE" <<EOF
 # Full access to tenant-specific secrets
 path "kv/data/${TENANT}/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
@@ -55,6 +70,15 @@ path "kv/data/argocd/*" {
   capabilities = ["deny"]
 }
 EOF
+
+  # Copy policy file to pod
+  kubectl cp "$POLICY_FILE" "${VAULT_NAMESPACE}/${VAULT_POD}:/tmp/${TENANT}-policy.hcl"
+
+  # Create policy in Vault
+  kubectl exec -n ${VAULT_NAMESPACE} ${VAULT_POD} -- vault policy write "${TENANT}"-policy "/tmp/${TENANT}-policy.hcl"
+
+  # Cleanup
+  rm -f "$POLICY_FILE"
 
   # Create Kubernetes auth role
   echo "Creating Kubernetes auth role: ${TENANT}"

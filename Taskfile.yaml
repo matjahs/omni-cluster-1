@@ -59,3 +59,8 @@ tasks:
     cmds:
       - task: update:kube-prometheus-stack
       - task: update:vault
+
+  vault:port-forward:
+    desc: Port forward Vault UI
+    cmds:
+      - kubectl -n vault port-forward pod/vault-dev-0 8200:8080

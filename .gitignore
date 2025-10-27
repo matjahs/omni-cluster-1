@@ -37,3 +37,4 @@ output-*/
 /.idea/php.xml
 /apps/default/vault/keys.json
 /.idea/
+.env
