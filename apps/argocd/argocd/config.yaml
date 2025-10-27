@@ -5,3 +5,18 @@ metadata:
   name: argocd-cm
 data:
   application.resourceTrackingMethod: "annotation"
+  url: https://argocd.example.com
+  oidc.config: |
+    name: GitHub
+    issuer: https://token.actions.githubusercontent.com
+    clientID: $oidc.github.clientId
+    clientSecret: $oidc.github.clientSecret
+    requestedScopes:
+      - openid
+      - profile
+      - email
+    requestedIDTokenClaims:
+      groups:
+        essential: true
+  dex.config: ""
+  admin.enabled: "true"

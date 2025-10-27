@@ -11,5 +11,4 @@ patches:
   - path: config.yaml
   - path: config-cmd-params.yaml
   - path: service.yaml
-  - path: config-sso.yaml
   - path: rbac-cm.yaml
