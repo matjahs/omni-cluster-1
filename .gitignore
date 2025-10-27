@@ -38,3 +38,8 @@ output-*/
 /apps/default/vault/keys.json
 /.idea/
 .env
+CLAUDE.md
+.claude/
+AGENTS.md
+cluster-keys.json
+.env

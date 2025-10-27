@@ -2,12 +2,12 @@
 tenantName: team-a
 rbac:
   adminGroups:
-    - oidc:github:org:platform-admins
-    - oidc:github:org:team-a-admins
+    - platform-admins
+    - team-a-admins
   developerGroups:
-    - oidc:github:org:team-a-developers
+    - team-a-developers
   viewerGroups:
-    - oidc:github:org:team-a-viewers
+    - team-a-viewers
 resourceQuota:
   hard:
     requests.cpu: '4'

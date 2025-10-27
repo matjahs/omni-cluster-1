@@ -1,0 +1,25 @@
+---
+metadata:
+  namespace: default
+  type: AccessPolicies.omni.sidero.dev
+  id: access-policy
+spec:
+  rules:
+    - users:
+        - alice@matjah.dev
+      clusters:
+        - talos-default
+      role: Reader
+      kubernetes:
+        impersonate:
+          groups:
+            - team-a
+    - users:
+        - bob@matjah.dev
+      clusters:
+        - talos-default
+      role: Operator
+      kubernetes:
+        impersonate:
+          groups:
+            - team-b
