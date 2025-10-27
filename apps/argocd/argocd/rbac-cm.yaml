@@ -7,60 +7,11 @@ metadata:
 data:
   policy.csv: |
     # ============================================
-    # Platform Admins - Full Access
+    # ArgoCD RBAC - Admin Only (No SSO)
     # ============================================
-    g, platform-admins, role:admin
+    # Admin user has full access via local account
+    # Tenant users access Kubernetes directly via Omni + RBAC
+    # (see tenants/team-*/resources/*-rolebinding.yaml)
 
-    # ============================================
-    # Team A Permissions
-    # ============================================
-    g, team-a-admins, role:team-a-admin
-    g, team-a-developers, role:team-a-developer
-    g, team-a-viewers, role:team-a-viewer
-
-    # Team A Admin
-    p, role:team-a-admin, applications, *, team-a/*, allow
-    p, role:team-a-admin, repositories, get, *, allow
-    p, role:team-a-admin, projects, get, team-a, allow
-    p, role:team-a-admin, logs, get, team-a/*, allow
-
-    # Team A Developer
-    p, role:team-a-developer, applications, get, team-a/*, allow
-    p, role:team-a-developer, applications, sync, team-a/*, allow
-    p, role:team-a-developer, applications, override, team-a/*, allow
-    p, role:team-a-developer, logs, get, team-a/*, allow
-    p, role:team-a-developer, projects, get, team-a, allow
-
-    # Team A Viewer
-    p, role:team-a-viewer, applications, get, team-a/*, allow
-    p, role:team-a-viewer, projects, get, team-a, allow
-
-    # ============================================
-    # Team B Permissions
-    # ============================================
-    g, team-b-admins, role:team-b-admin
-    g, team-b-developers, role:team-b-developer
-    g, team-b-viewers, role:team-b-viewer
-
-    # Team B Admin
-    p, role:team-b-admin, applications, *, team-b/*, allow
-    p, role:team-b-admin, repositories, get, *, allow
-    p, role:team-b-admin, projects, get, team-b, allow
-    p, role:team-b-admin, logs, get, team-b/*, allow
-
-    # Team B Developer
-    p, role:team-b-developer, applications, get, team-b/*, allow
-    p, role:team-b-developer, applications, sync, team-b/*, allow
-    p, role:team-b-developer, applications, override, team-b/*, allow
-    p, role:team-b-developer, logs, get, team-b/*, allow
-    p, role:team-b-developer, projects, get, team-b, allow
-
-    # Team B Viewer
-    p, role:team-b-viewer, applications, get, team-b/*, allow
-    p, role:team-b-viewer, projects, get, team-b, allow
-
-  # Default role for authenticated users
+  # Default role for authenticated users (admin only)
   policy.default: role:readonly
-
-  # Enable group claims from OIDC
-  scopes: '[groups, email]'
