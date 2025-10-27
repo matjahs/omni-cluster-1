@@ -6,17 +6,39 @@ metadata:
 data:
   application.resourceTrackingMethod: "annotation"
   url: https://argocd.example.com
-  oidc.config: |
-    name: GitHub
-    issuer: https://token.actions.githubusercontent.com
-    clientID: $oidc.github.clientId
-    clientSecret: $oidc.github.clientSecret
-    requestedScopes:
-      - openid
-      - profile
-      - email
-    requestedIDTokenClaims:
-      groups:
-        essential: true
-  dex.config: ""
   admin.enabled: "true"
+  # Using embedded Dex for GitHub SSO; remove standalone oidc.config
+  dex.config: |
+    issuer: https://argocd.example.com/dex
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      allowedOrigins: ['*']
+    oauth2:
+      skipApprovalScreen: true
+    staticClients:
+    - id: argocd
+      name: ArgoCD
+      redirectURIs:
+      - https://argocd.example.com/auth/callback
+      secret: $dex.github.staticClientSecret
+    connectors:
+    - type: github
+      id: github
+      name: GitHub
+      config:
+        clientID: $dex.github.clientId
+        clientSecret: $dex.github.clientSecret
+        orgs:
+        - name: your-org
+          teams:
+          - team-a-admins
+          - team-a-developers
+          - team-a-viewers
+          - team-b-admins
+          - team-b-developers
+          - team-b-viewers
+  # Remove OIDC direct config in favor of Dex
+  oidc.config: ""
