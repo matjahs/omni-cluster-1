@@ -7,8 +7,8 @@ resources:
   - github.com/argoproj/argo-cd/manifests/cluster-install?ref=v2.11.0
   - bootstrap-app-set.yaml
   - argocd-external-secret.yaml
+  - rbac-cm.yaml
 patches:
   - path: config.yaml
   - path: config-cmd-params.yaml
   - path: service.yaml
-  - path: rbac-cm.yaml
