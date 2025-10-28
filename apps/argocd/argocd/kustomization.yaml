@@ -7,6 +7,7 @@ resources:
   - github.com/argoproj/argo-cd/manifests/cluster-install?ref=v3.1.9
   - bootstrap-app-set.yaml
   - argocd-external-secret.yaml
+patchesStrategicMerge:
   - rbac-cm.yaml
 patches:
   - path: config.yaml
