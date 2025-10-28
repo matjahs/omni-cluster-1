@@ -1,0 +1,63 @@
+# Omni Access Policy for Multi-Tenant Cluster
+# Apply with: omnictl apply -f omni-access-policy.yaml
+#
+# Based on: https://docs.siderolabs.com/omni/reference/acls
+#
+# NOTE: usergroups/clustergroups feature may not be fully available yet
+# This example uses direct user lists in rules
+---
+metadata:
+  namespace: default
+  type: AccessPolicies.omni.sidero.dev
+  id: access-policy
+spec:
+  usergroups: {}
+  clustergroups: {}
+
+  # Access Rules: Connect users to clusters with Kubernetes group impersonation
+  rules:
+    # Team A: Alice gets K8s group "team-a-admins" automatically
+    - users:
+        - alice@matjah.dev
+      clusters:
+        - talos-default
+      kubernetes:
+        impersonate:
+          groups:
+            - team-a-admins  # K8s RBAC group
+      role: Reader
+
+    # Team A: Add more members to team-a-admins group
+    - users:
+        - charlie@matjah.dev
+      clusters:
+        - talos-default
+      kubernetes:
+        impersonate:
+          groups:
+            - team-a-admins
+      role: Reader
+
+    # Team B: Bob gets K8s group "team-b-admins"
+    - users:
+        - bob@matjah.dev
+      clusters:
+        - talos-default
+      kubernetes:
+        impersonate:
+          groups:
+            - team-b-admins
+      role: Reader
+
+    # Example: Read-only user
+    # - users:
+    #     - viewer@external.com
+    #   clusters:
+    #     - talos-default
+    #   kubernetes:
+    #     impersonate:
+    #       groups:
+    #         - team-a-viewers
+    #   role: Reader
+
+  tests: []

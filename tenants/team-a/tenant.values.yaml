@@ -4,10 +4,6 @@ rbac:
   adminGroups:
     - platform-admins
     - team-a-admins
-  developerGroups:
-    - team-a-developers
-  viewerGroups:
-    - team-a-viewers
 resourceQuota:
   hard:
     requests.cpu: '4'

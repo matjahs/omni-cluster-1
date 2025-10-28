@@ -1,0 +1,19 @@
+---
+# RoleBinding for team-a-admins GROUP (instead of individual users)
+# Users are added to this group via Omni Access Policy
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-a-admins-binding
+  namespace: team-a
+  labels:
+    app.kubernetes.io/managed-by: tenant-baseline
+    tenant: team-a
+subjects:
+- kind: Group
+  name: team-a-admins  # Omni Access Policy adds users to this group
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: team-a-admin
+  apiGroup: rbac.authorization.k8s.io

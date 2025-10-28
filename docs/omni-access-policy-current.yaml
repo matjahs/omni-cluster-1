@@ -1,0 +1,38 @@
+metadata:
+    namespace: default
+    type: AccessPolicies.omni.sidero.dev
+    id: access-policy
+    version: 7
+    owner:
+    phase: running
+    created: 2025-10-05T06:02:15Z
+    updated: 2025-10-27T13:05:00Z
+spec:
+    usergroups:
+      team-a-members:
+        - alice@matjah.dev
+        - charlie@matjah.dev
+      team-b-members:
+        - bob@matjah.dev
+        - dave@matjah.dev
+    clustergroups: {}
+    rules:
+        - users:
+            - alice@matjah.dev
+          clusters:
+            - talos-default
+          kubernetes:
+            impersonate:
+                groups:
+                    - team-a
+          role: Reader
+        - users:
+            - bob@matjah.dev
+          clusters:
+            - talos-default
+          kubernetes:
+            impersonate:
+                groups:
+                    - team-b
+          role: Operator
+    tests: []

@@ -4,16 +4,12 @@ rbac:
   adminGroups:
     - platform-admins
     - team-b-admins
-  developerGroups:
-    - team-b-developers
-  viewerGroups:
-    - team-b-viewers
 resourceQuota:
   hard:
     requests.cpu: '4'
     limits.memory: 16Gi
 extras:
   config:
-    customAnnotation: team-a-value
+    customAnnotation: team-b-value
     customFeatureFlag: true
     customList: [item1, item2, item3]

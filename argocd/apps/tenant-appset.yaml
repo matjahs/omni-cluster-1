@@ -18,25 +18,26 @@ spec:
         # noinspection KubernetesUnknownValues
         tenant: '{{path.basename}}'
     spec:
-      project: '{{path.basename}}'
+      project: tenants
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'
       sources:
-        # 1) Helm tenant baseline (local chart)
+        # 1) Values source (referenced by $values)
+        - repoURL: https://github.com/matjahs/omni-cluster-1.git
+          targetRevision: main
+          ref: values
+        # 2) Helm tenant baseline (local chart)
         - repoURL: https://github.com/matjahs/omni-cluster-1.git
           targetRevision: main
           path: helm/tenant-baseline
           helm:
             valueFiles:
               - $values/{{path}}/tenant.values.yaml
-        # 2) Optional tenant app (Kustomize overlay)
+        # 3) Optional tenant app (Kustomize overlay)
         - repoURL: https://github.com/matjahs/omni-cluster-1.git
           targetRevision: main
           path: '{{path}}/app'
-      source:
-        # Allows $values to resolve from this repo for the valueFiles above
-        repoURL: https://github.com/matjahs/omni-cluster-1.git
       syncPolicy:
         automated:
           prune: true
