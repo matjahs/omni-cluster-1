@@ -43,3 +43,7 @@ CLAUDE.md
 AGENTS.md
 cluster-keys.json
 .env
+kubeconfigs/
+secrets.auto.tfvars
+*.tfvars.json
+*.tfstate
