@@ -50,6 +50,22 @@
             "type": "string"
           }
         },
+        "developerGroups": {
+          "type": "array",
+          "description": "List of developer groups with write access.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewerGroups": {
+          "type": "array",
+          "description": "List of viewer groups with read-only access.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
         "additionalRoleBindings": {
           "type": "array",
           "description": "Additional RoleBindings to create for the tenant namespace.",
@@ -167,6 +183,11 @@
       "additionalProperties": false,
       "default": {},
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable network policies.",
+          "default": true
+        },
         "defaultDenyAll": {
           "type": "boolean",
           "description": "Create a deny-all ingress and egress NetworkPolicy.",
@@ -176,6 +197,68 @@
           "type": "boolean",
           "description": "Allow intra-namespace ingress traffic via NetworkPolicy.",
           "default": true
+        },
+        "allowVault": {
+          "type": "boolean",
+          "description": "Allow access to Vault.",
+          "default": true
+        },
+        "allowMonitoring": {
+          "type": "boolean",
+          "description": "Allow Prometheus scraping.",
+          "default": true
+        },
+        "allowIngress": {
+          "type": "boolean",
+          "description": "Allow Cilium Gateway/Ingress access.",
+          "default": true
+        },
+        "allowExternal": {
+          "type": "boolean",
+          "description": "Allow external HTTPS access.",
+          "default": true
+        },
+        "allowExternalHTTP": {
+          "type": "boolean",
+          "description": "Allow external HTTP access.",
+          "default": false
+        },
+        "allowExternalDB": {
+          "type": "boolean",
+          "description": "Allow database access.",
+          "default": false
+        },
+        "allowedDatabases": {
+          "type": "array",
+          "description": "List of allowed database types (postgres, mysql, mongodb, redis, mssql).",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ingressPodLabels": {
+          "type": "object",
+          "description": "Labels for pods that should accept ingress.",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "otherTenantNamespaces": {
+          "type": "array",
+          "description": "List of other tenant namespaces to explicitly deny.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "customCiliumPolicies": {
+          "type": "array",
+          "description": "Custom Cilium network policies.",
+          "default": [],
+          "items": {
+            "type": "object"
+          }
         },
         "extra": {
           "type": "array",
@@ -226,6 +309,28 @@
           "type": "string",
           "description": "Name of the ServiceAccount to create when enabled.",
           "default": "default"
+        }
+      }
+    },
+    "vault": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Vault integration.",
+          "default": false
+        },
+        "secretStoreName": {
+          "type": "string",
+          "description": "Name of the secret store.",
+          "default": "vault-tenant"
+        },
+        "vaultRole": {
+          "type": "string",
+          "description": "Vault role name (defaults to tenantName if empty).",
+          "default": ""
         }
       }
     },
