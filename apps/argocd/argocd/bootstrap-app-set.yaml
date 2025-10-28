@@ -37,11 +37,13 @@ spec:
           - RespectIgnoreDifferences=true
           - SkipDryRunOnMissingResource=true
         retry:
-          limit: -1  # Infinite retries
+          limit: 3
           backoff:
             duration: 30s
             factor: 2
             maxDuration: 5m
+      # We can use ignoreDifferences to ignore fields that are expected to change.
+      # This is useful for ArgoCD apps that get updated by controllers/operators.
       ignoreDifferences:
         # ArgoCD tracking-id annotations - automatically added by ArgoCD
         - group: '*'
