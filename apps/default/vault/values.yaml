@@ -54,6 +54,10 @@ ha:
 
 ui:
   enabled: true
-  service:
-    type: ClusterIP
-    port: 8200
+  serviceType: ClusterIP
+  externalPort: 8200
+  targetPort: 8200
+  annotations:
+    omni-kube-service-exposer.sidero.dev/port: '8200'
+    omni-kube-service-exposer.sidero.dev/label: Vault
+    omni-kube-service-exposer.sidero.dev/alias: vault
