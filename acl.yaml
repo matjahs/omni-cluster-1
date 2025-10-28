@@ -4,22 +4,79 @@ metadata:
   type: AccessPolicies.omni.sidero.dev
   id: access-policy
 spec:
+  usergroups:
+    admins:
+      users:
+        - match: matjah*
+    team-a:
+      users:
+        - match: charlie@matjah.dev
+        - match: alice@matjah.dev
+    team-b:
+      users:
+        - match: bob@matjah.dev
+        - match: dave@matjah.dev
+  clustergroups:
+    lab:
+      clusters:
+        - name: auto-scale
+    rumc:
+      clusters:
+        - name: talos-default
   rules:
     - users:
-        - alice@matjah.dev
+        - group/admins
       clusters:
-        - talos-default
-      role: Reader
-      kubernetes:
-        impersonate:
-          groups:
-            - team-a
+        - group/lab
+        - group/rumc
+      role: Admin
+
     - users:
-        - bob@matjah.dev
+        - group/team-a
       clusters:
-        - talos-default
-      role: Operator
+        - group/rumc
+      role: None
       kubernetes:
         impersonate:
           groups:
-            - team-b
+            - team-a-admins
+
+    - users:
+        - group/team-b
+      clusters:
+        - group/rumc
+      role: None
+      kubernetes:
+        impersonate:
+          groups:
+            - team-b-admins
+
+  tests:
+    - name: team-a has None role on talos-default
+      user:
+        name: alice@matjah.dev
+      cluster:
+        name: talos-default
+      expected:
+        role: None
+        kubernetes:
+          impersonate:
+            groups:
+              - team-a-admins
+    - name: team-a has no access to lab cluster
+      user:
+        name: alice@matjah.dev
+      cluster:
+        name: auto-scale
+      expected:
+        role: None
+        kubernetes:
+          impersonate:
+            groups: []
+    - name: admin has Admin role on all clusters
+      user:
+        name: matjah@matjah.dev
+      cluster:
+        name: talos-default
+      expected:
+        role: Admin

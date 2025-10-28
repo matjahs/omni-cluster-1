@@ -34,6 +34,7 @@ tasks:
     cmds:
       - task: omni:talosconfig
       - task: omni:kubeconfig
+
   argo:sync:
     desc: Refresh repo server to pick up changes
     cmds:
@@ -64,3 +65,8 @@ tasks:
     desc: Port forward Vault UI
     cmds:
       - kubectl -n vault port-forward pod/vault-dev-0 8200:8080
+
+  omni:logout:
+    desc: Logout from Omni
+    cmds:
+      - kubectl oidc-login clean
