@@ -38,6 +38,11 @@ spec:
         - repoURL: https://github.com/matjahs/omni-cluster-1.git
           targetRevision: main
           path: '{{path}}/app'
+      ignoreDifferences:
+        - group: "*"
+          kind: "*"
+          jsonPointers:
+            - /metadata/annotations/argocd.argoproj.io~1tracking-id
       syncPolicy:
         automated:
           prune: true
