@@ -125,3 +125,7 @@ spec:
           name: cilium-operator
           namespace: kube-system
           jsonPointers: [/status]
+        # Service LoadBalancer - ignore ipMode field (K8s 1.30+ feature)
+        - kind: Service
+          jsonPointers:
+            - /status/loadBalancer/ingress
