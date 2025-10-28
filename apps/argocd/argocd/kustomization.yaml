@@ -7,9 +7,9 @@ resources:
   - github.com/argoproj/argo-cd/manifests/cluster-install?ref=v3.1.9
   - bootstrap-app-set.yaml
   - argocd-external-secret.yaml
-patchesStrategicMerge:
-  - rbac-cm.yaml
 patches:
   - path: config.yaml
   - path: config-cmd-params.yaml
   - path: service.yaml
+# Note: rbac-cm.yaml needs to be applied manually until we fix kustomize patching
+# kubectl apply -f apps/argocd/argocd/rbac-cm.yaml
