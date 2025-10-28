@@ -3,3 +3,9 @@
 {{ define "tenant.name" -}}
 {{ required "tenantName is required" .Values.tenantName }}
 {{- end -}}
+
+{{- define "tenant.labels" -}}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/instance: {{ include "tenant.name" . }}
+tenant: {{ include "tenant.name" . }}
+{{- end -}}
