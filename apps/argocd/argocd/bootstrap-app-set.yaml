@@ -128,17 +128,17 @@ spec:
             - /status/loadBalancer/ingress
         # AppArmor profile - ignore runtime apparmor fields for all workloads
         - kind: DaemonSet
-          jqPathExpressions:
-            - .spec.template.spec.securityContext.appArmorProfile
-            - .spec.template.spec.containers[]?.securityContext.appArmorProfile
-            - .spec.template.spec.initContainers[]?.securityContext.appArmorProfile
+          managedFieldsManagers:
+            - kube-controller-manager
+          jsonPointers:
+            - /spec/template/spec/securityContext/appArmorProfile
         - kind: Deployment
-          jqPathExpressions:
-            - .spec.template.spec.securityContext.appArmorProfile
-            - .spec.template.spec.containers[]?.securityContext.appArmorProfile
-            - .spec.template.spec.initContainers[]?.securityContext.appArmorProfile
+          managedFieldsManagers:
+            - kube-controller-manager
+          jsonPointers:
+            - /spec/template/spec/securityContext/appArmorProfile
         - kind: StatefulSet
-          jqPathExpressions:
-            - .spec.template.spec.securityContext.appArmorProfile
-            - .spec.template.spec.containers[]?.securityContext.appArmorProfile
-            - .spec.template.spec.initContainers[]?.securityContext.appArmorProfile
+          managedFieldsManagers:
+            - kube-controller-manager
+          jsonPointers:
+            - /spec/template/spec/securityContext/appArmorProfile
