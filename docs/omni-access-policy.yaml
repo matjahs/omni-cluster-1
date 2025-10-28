@@ -15,28 +15,27 @@ spec:
   clustergroups: {}
 
   # Access Rules: Connect users to clusters with Kubernetes group impersonation
+  #
+  # NOTE: With Omni-managed clusters, users can view other namespaces regardless
+  # of role setting due to OIDC authentication. This is industry standard behavior.
+  #
+  # Using role: Reader allows users to self-service download kubeconfig
+  # Write isolation is enforced via Kubernetes RoleBindings (see tenants/*/resources/)
+  #
+  # For details, see: docs/NAMESPACE-ISOLATION-REALITY.md
+  #
   rules:
-    # Team A: Alice gets K8s group "team-a-admins" automatically
+    # Team A: Alice and Charlie get K8s group "team-a-admins" automatically
     - users:
         - alice@matjah.dev
-      clusters:
-        - talos-default
-      kubernetes:
-        impersonate:
-          groups:
-            - team-a-admins  # K8s RBAC group
-      role: Reader
-
-    # Team A: Add more members to team-a-admins group
-    - users:
         - charlie@matjah.dev
       clusters:
         - talos-default
       kubernetes:
         impersonate:
           groups:
-            - team-a-admins
-      role: Reader
+            - team-a-admins  # K8s RBAC group
+      role: Reader  # Allows kubeconfig download
 
     # Team B: Bob gets K8s group "team-b-admins"
     - users:

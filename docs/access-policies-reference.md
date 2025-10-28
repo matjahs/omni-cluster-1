@@ -52,8 +52,8 @@ metadata:
 spec:
   usergroups:
     team-a-members:
-      - alice@matjah.dev
-      - charlie@matjah.dev
+      - alice@example.com
+      - charlie@example.com
 
   rules:
     - usergroups:
@@ -131,9 +131,9 @@ See [docs/omni-access-policy.yaml](omni-access-policy.yaml) for a full example w
 ### Current Setup (Individual Users)
 ```
 tenants/team-a/resources/
-├── alice-rolebinding.yaml    # Binds alice@matjah.dev to team-a-admin
-├── charlie-rolebinding.yaml  # Binds charlie@matjah.dev to team-a-admin
-└── dave-rolebinding.yaml     # Binds dave@matjah.dev to team-a-admin
+├── alice-rolebinding.yaml    # Binds alice@example.com to team-a-admin
+├── charlie-rolebinding.yaml  # Binds charlie@example.com to team-a-admin
+└── dave-rolebinding.yaml     # Binds dave@example.com to team-a-admin
 ```
 
 ### New Setup (Group-Based)
@@ -179,11 +179,11 @@ spec:
       - devops@company.com
 
     team-a-admins:
-      - alice@matjah.dev
+      - alice@example.com
 
     team-a-developers:
-      - bob@matjah.dev
-      - charlie@matjah.dev
+      - bob@example.com
+      - charlie@example.com
 ```
 
 ### Cluster Groups
@@ -316,8 +316,8 @@ omnictl get accesspolicy access-policy -o yaml > docs/omni-access-policy.yaml
 
 ### Validate policy (dry-run)
 ```bash
-# Test if user alice@matjah.dev can access cluster
-omnictl get accesspolicy access-policy -o yaml | grep -A5 "alice@matjah.dev"
+# Test if user alice@example.com can access cluster
+omnictl get accesspolicy access-policy -o yaml | grep -A5 "alice@example.com"
 ```
 
 ## Multi-Cluster Example
